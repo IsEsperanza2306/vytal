@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FAFAF8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/manifest.json">
+  <title>VYTAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/vytal.css">
+  <style>
+    .page{display:none}.page.active{display:block;animation:fadeIn .25s ease}
+    /* Modal for exercise video/phases */
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:var(--bg-secondary);border-radius:var(--radius-xl);max-width:440px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-elevated);padding:20px}
+    .modal-close{float:right;width:32px;height:32px;border-radius:50%;background:var(--bg-warm);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--text-secondary)}
+    .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;text-transform:uppercase;margin:8px 0 16px}
+    .phase-item{padding:10px 0;border-bottom:1px solid var(--border-subtle)}
+    .phase-item:last-child{border:none}
+    .phase-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    .phase-label.start{color:var(--accent-sand)}.phase-label.ecc{color:var(--pull-sage)}.phase-label.con{color:var(--push-terracotta)}
+    .phase-text{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+    .error-list{list-style:none;margin:12px 0 0}
+    .error-list li{font-size:.75rem;color:var(--text-secondary);padding:6px 0 6px 16px;position:relative;border-bottom:1px solid var(--border-subtle)}
+    .error-list li:last-child{border:none}
+    .error-list li::before{content:'';position:absolute;left:0;top:12px;width:6px;height:6px;border-radius:50%;background:var(--danger)}
+    /* Grocery list */
+    .grocery-section{margin-bottom:16px}
+    .grocery-title{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border-subtle)}
+    .grocery-item{font-size:.78rem;color:var(--text-secondary);padding:4px 0}
+    /* Day selector tabs */
+    .day-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .day-tabs::-webkit-scrollbar{display:none}
+    .day-tab{flex-shrink:0;padding:8px 14px;border-radius:var(--radius-sm);background:var(--bg-warm);font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);cursor:pointer;transition:all var(--transition);white-space:nowrap}
+    .day-tab.active{background:var(--text-primary);color:var(--bg-primary)}
+    .day-tab.training{border:1.5px solid var(--push-terracotta-medium)}
+    .day-tab.rest{border:1.5px solid var(--border-subtle)}
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="container">
+      <div class="logo">VY<span>TAL</span></div>
+      <div class="date-label" id="dateLabel"></div>
+    </div>
+  </header>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <main id="pageDashboard" class="page active">
+    <div class="container">
+      <div class="hero-card push" id="heroCard">
+        <div class="hero-label" id="heroLabel">Hoy toca</div>
+        <div class="hero-title" id="heroTitle">Cargando...</div>
+        <div class="hero-subtitle" id="heroSubtitle"></div>
+        <div class="hero-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+      <div class="week-progress">
+        <h3>Semana en curso</h3>
+        <div class="week-days" id="weekDays"></div>
+      </div>
+      <div class="quick-stats">
+        <div class="stat-card terracotta"><div class="stat-value" id="statSessions">0</div><div class="stat-label">Sesiones</div></div>
+        <div class="stat-card sage"><div class="stat-value" id="statWater">0L</div><div class="stat-label">Agua hoy</div></div>
+        <div class="stat-card sand"><div class="stat-value" id="statSupps">0/2</div><div class="stat-label">Suplem.</div></div>
+      </div>
+      <div class="section-card" onclick="navigateTo('entreno')">
+        <div class="card-icon terracotta"><svg viewBox="0 0 24 24" fill="none" stroke="var(--push-terracotta)" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M2 12h20M6.5 9h-2a1 1 0 01-1-1V7M6.5 15h-2a1 1 0 00-1 1v1M17.5 9h2a1 1 0 001-1V7M17.5 15h2a1 1 0 011 1v1"/></svg></div>
+        <div class="card-content"><div class="card-title">Entrenamiento</div><div class="card-desc" id="dashEntrenoDesc">Push/Pull 4 dias</div></div>
+        <div class="card-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="section-card" onclick="navigateTo('nutricion')">
+        <div class="card-icon sage"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pull-sage)" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+        <div class="card-content"><div class="card-title">Nutricion</div><div class="card-desc" id="dashNutriDesc">Plan semanal</div><div class="progress-bar"><div class="progress-fill sage" id="dashNutriBar" style="width:0%"></div></div></div>
+        <div class="card-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="section-card" onclick="navigateTo('suplementos')">
+        <div class="card-icon sand"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-sand)" stroke-width="1.8" stroke-linecap="round"><rect x="8" y="2" width="8" height="20" rx="4"/><path d="M8 12h8"/></svg></div>
+        <div class="card-content"><div class="card-title">Suplementos</div><div class="card-desc" id="dashSuppDesc">Creatina + Whey + Agua</div></div>
+        <div class="card-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== ENTRENO ==================== -->
+  <main id="pageEntreno" class="page">
+    <div class="container">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <h2 id="entrenoTitle" class="push">Entrenamiento</h2>
+      </div>
+      <div class="day-progress" id="entrenoProgress">
+        <div class="dp-row"><span>Progreso del dia</span><span id="dayProgressLabel">0/6</span></div>
+        <div class="progress-bar"><div class="progress-fill terracotta" id="dayProgressBar" style="width:0%"></div></div>
+      </div>
+      <div id="exerciseList"></div>
+    </div>
+  </main>
+
+  <!-- ==================== NUTRICION ==================== -->
+  <main id="pageNutricion" class="page">
+    <div class="container">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <h2 class="pull">Nutricion</h2>
+      </div>
+      <div class="day-tabs" id="nutriDayTabs"></div>
+      <div class="macro-progress" id="nutriMacros"></div>
+      <div id="mealList"></div>
+      <div class="water-tracker" style="margin-top:8px">
+        <div class="water-header"><div class="water-title">Agua — Meta 3L</div><div class="water-count" id="nutriWaterCount">0/12</div></div>
+        <div class="water-glasses" id="nutriWaterGlasses"></div>
+      </div>
+      <div id="grocerySection" style="margin-top:20px"></div>
+    </div>
+  </main>
+
+  <!-- ==================== SUPLEMENTOS ==================== -->
+  <main id="pageSuplementos" class="page">
+    <div class="container">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <h2 class="sand">Suplementos</h2>
+      </div>
+      <div id="suppList"></div>
+      <div class="water-tracker" style="margin-top:24px">
+        <div class="water-header"><div class="water-title">Hidratacion — Meta 3L</div><div class="water-count" id="suppWaterCount">0/12</div></div>
+        <div class="water-glasses" id="suppWaterGlasses"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== MODAL ==================== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-box" id="modalBox"></div>
+  </div>
+
+  <!-- ==================== BOTTOM NAV ==================== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('dashboard')" data-page="dashboard">
+      <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="nav-label">Inicio</div>
+    </button>
+    <button class="nav-item terracotta" onclick="navigateTo('entreno')" data-page="entreno">
+      <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M2 12h20M6.5 9h-2a1 1 0 01-1-1V7M6.5 15h-2a1 1 0 00-1 1v1M17.5 9h2a1 1 0 001-1V7M17.5 15h2a1 1 0 011 1v1"/></svg></div>
+      <div class="nav-label">Entreno</div>
+      <div class="sync-badge"></div>
+    </button>
+    <button class="nav-item sage" onclick="navigateTo('nutricion')" data-page="nutricion">
+      <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <div class="nav-label">Nutricion</div>
+    </button>
+    <button class="nav-item sand" onclick="navigateTo('suplementos')" data-page="suplementos">
+      <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="20" rx="4"/><path d="M8 12h8"/></svg></div>
+      <div class="nav-label">Suplem.</div>
+    </button>
+  </nav>
+
+  <!-- Supabase UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/svg-exercises.js"></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    /* ============================================
+       DATA
+       ============================================ */
+    var trainingPlan = null;
+    var nutritionPlan = null;
+    var now = new Date();
+    var TODAY_KEY = now.getDay(); // 0=Sun
+    var DAY_NAMES_ES = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+    var DAY_NAMES_SHORT = ['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
+    var DAY_NAMES_LONG = ['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+    var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    /* State persisted in localStorage */
+    var state = {
+      water: VYTAL_DB.localGet('water_' + dateKey(), 0),
+      supps: VYTAL_DB.localGet('supps_' + dateKey(), { creatina: false, proteina: false }),
+      exerciseSets: VYTAL_DB.localGet('sets_' + dateKey(), {}),
+      exerciseWeights: VYTAL_DB.localGet('weights', {}),
+      mealsChecked: VYTAL_DB.localGet('meals_' + dateKey(), {}),
+      currentNutriDay: DAY_NAMES_ES[TODAY_KEY]
+    };
+
+    function dateKey() {
+      return now.toISOString().split('T')[0];
+    }
+
+    function saveState() {
+      VYTAL_DB.localSet('water_' + dateKey(), state.water);
+      VYTAL_DB.localSet('supps_' + dateKey(), state.supps);
+      VYTAL_DB.localSet('sets_' + dateKey(), state.exerciseSets);
+      VYTAL_DB.localSet('weights', state.exerciseWeights);
+      VYTAL_DB.localSet('meals_' + dateKey(), state.mealsChecked);
+    }
+
+    /* ============================================
+       LOAD DATA
+       ============================================ */
+    function loadData() {
+      return Promise.all([
+        fetch('/assets/training-plan.json').then(function(r) { return r.json(); }),
+        fetch('/assets/nutrition-plan.json').then(function(r) { return r.json(); })
+      ]).then(function(results) {
+        trainingPlan = results[0];
+        nutritionPlan = results[1];
+        renderAll();
+      }).catch(function() {
+        // Try from cache or show error
+        renderAll();
+      });
+    }
+
+    /* ============================================
+       DATE HEADER
+       ============================================ */
+    function renderDateHeader() {
+      var el = document.getElementById('dateLabel');
+      if (el) el.textContent = DAY_NAMES_LONG[TODAY_KEY] + ' ' + now.getDate() + ' de ' + MONTHS[now.getMonth()];
+    }
+
+    /* ============================================
+       SCHEDULE
+       ============================================ */
+    var schedule = { 0:'rest', 1:'push', 2:'pull', 3:'rest', 4:'push', 5:'pull', 6:'rest' };
+    var scheduleLabels = {
+      push: { label: 'Bloque A — Empuje', sub: '6 ejercicios · ~55 min' },
+      pull: { label: 'Bloque B — Traccion', sub: '6 ejercicios · ~55 min' },
+      rest: { label: 'Descanso', sub: 'Recuperacion activa · Descansa bien' }
+    };
+
+    function getTodayType() { return schedule[TODAY_KEY]; }
+
+    /* ============================================
+       DASHBOARD
+       ============================================ */
+    function renderDashboard() {
+      var type = getTodayType();
+      var info = scheduleLabels[type];
+
+      // Hero
+      var hero = document.getElementById('heroCard');
+      hero.className = 'hero-card ' + type;
+      document.getElementById('heroTitle').textContent = info.label;
+      document.getElementById('heroSubtitle').textContent = info.sub;
+      document.getElementById('heroLabel').textContent = type === 'rest' ? 'Hoy es' : 'Hoy toca';
+      hero.onclick = function() { if (type !== 'rest') navigateTo('entreno'); };
+
+      // Week
+      renderWeek();
+
+      // Stats
+      document.getElementById('statWater').textContent = (state.water * 0.25).toFixed(1) + 'L';
+      var suppsDone = (state.supps.creatina ? 1 : 0) + (state.supps.proteina ? 1 : 0);
+      document.getElementById('statSupps').textContent = suppsDone + '/2';
+
+      // Sessions this week
+      var sessions = 0;
+      var mondayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
+      for (var d = 0; d < mondayIdx; d++) {
+        var dayNum = d + 1; // 1=Mon
+        if (schedule[dayNum] !== 'rest') {
+          var key = getDateForWeekday(dayNum);
+          var sets = VYTAL_DB.localGet('sets_' + key, {});
+          if (Object.keys(sets).length > 0) sessions++;
+        }
+      }
+      // Check today
+      if (Object.keys(state.exerciseSets).length > 0) sessions++;
+      document.getElementById('statSessions').textContent = sessions;
+    }
+
+    function getDateForWeekday(dayNum) {
+      var d = new Date(now);
+      var diff = dayNum - now.getDay();
+      d.setDate(d.getDate() + diff);
+      return d.toISOString().split('T')[0];
+    }
+
+    function renderWeek() {
+      var el = document.getElementById('weekDays');
+      if (!el) return;
+      var dayOrder = [1,2,3,4,5,6,0]; // Mon-Sun
+      var names = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
+      var todayIdx = TODAY_KEY === 0 ? 6 : TODAY_KEY - 1;
+      var html = '';
+      for (var i = 0; i < 7; i++) {
+        var type = schedule[dayOrder[i]];
+        var cls = 'week-day ' + type;
+        if (i === todayIdx) cls += ' today';
+        if (i < todayIdx) cls += ' completed';
+        html += '<div class="' + cls + '"><div class="day-name">' + names[i] + '</div><div class="day-type"></div></div>';
+      }
+      el.innerHTML = html;
+    }
+
+    /* ============================================
+       ENTRENO
+       ============================================ */
+    function renderEntreno() {
+      if (!trainingPlan) return;
+      var type = getTodayType();
+      var titleEl = document.getElementById('entrenoTitle');
+      var listEl = document.getElementById('exerciseList');
+      var progressBar = document.getElementById('dayProgressBar');
+      var progressLabel = document.getElementById('dayProgressLabel');
+
+      if (type === 'rest') {
+        titleEl.textContent = 'Dia de descanso';
+        titleEl.className = '';
+        listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text-muted)">' +
+          '<div style="font-size:2rem;margin-bottom:12px">&#9968;</div>' +
+          '<p style="font-size:.85rem">Hoy es dia de recuperacion.</p>' +
+          '<p style="font-size:.75rem;margin-top:8px">Descansa, estira, hidratate.</p></div>';
+        document.getElementById('entrenoProgress').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('entrenoProgress').style.display = '';
+      var block = trainingPlan.blocks[type];
+      titleEl.textContent = block.name;
+      titleEl.className = type === 'push' ? 'push' : 'pull';
+      progressBar.className = 'progress-fill ' + (type === 'push' ? 'terracotta' : 'sage');
+
+      var exercises = block.exercises;
+      var html = '';
+
+      for (var i = 0; i < exercises.length; i++) {
+        var ex = exercises[i];
+        var colorClass = type;
+        var setsState = state.exerciseSets[ex.key] || [];
+        var lastWeight = state.exerciseWeights[ex.key] || '';
+
+        html += '<div class="exercise-card ' + colorClass + '">';
+        // Header
+        html += '<div class="exercise-header">';
+        html += '<div class="exercise-number">' + (i + 1) + '</div>';
+        html += '<div><div class="exercise-name">' + ex.name + '</div>';
+        html += '<div class="exercise-meta">' + (ex.type === 'compound' ? 'Compuesto' : 'Aislamiento') + ' · ' + ex.muscles + '</div></div></div>';
+
+        // SVG
+        html += '<div class="svg-container">' + (window.VYTAL_SVG ? VYTAL_SVG.render(ex.key) : '') + '</div>';
+
+        // Detail button
+        html += '<div style="text-align:center;margin:-6px 0 12px">';
+        html += '<button onclick="openExerciseModal(\'' + ex.key + '\')" style="font-size:.7rem;color:var(--' + (type === 'push' ? 'push-terracotta' : 'pull-sage') + ');font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:6px 16px;border-radius:var(--radius-sm);background:var(--' + (type === 'push' ? 'push-terracotta-soft' : 'pull-sage-soft') + ')">Ver fases y errores</button>';
+        html += '</div>';
+
+        // Bio tip
+        html += '<div class="bio-tip"><strong>Clave:</strong> ' + ex.bio + '</div>';
+
+        // Weight
+        html += '<div class="weight-row" style="margin-bottom:14px">';
+        html += '<input type="number" class="weight-input" value="' + lastWeight + '" step="2.5" inputmode="decimal" placeholder="kg" data-exercise="' + ex.key + '" onchange="updateWeight(this)">';
+        html += '<span class="weight-unit">kg</span>';
+
+        // Progression suggestion
+        var suggestion = getProgression(ex.key, ex.repRange);
+        if (suggestion) {
+          html += '<span class="weight-suggestion">' + suggestion + '</span>';
+        }
+        html += '</div>';
+
+        // Series
+        html += '<div class="series-tracker">';
+        for (var s = 0; s < ex.sets; s++) {
+          var completed = setsState[s] ? true : false;
+          var repsVal = setsState[s] || '—';
+          html += '<button class="series-btn ' + colorClass + (completed ? ' completed' : '') + '" ' +
+            'onclick="toggleSet(this,\'' + ex.key + '\',' + s + ',' + ex.repRange[0] + ',' + ex.repRange[1] + ')" ' +
+            'data-set="' + s + '">';
+          html += '<div class="series-label">S' + (s + 1) + '</div>';
+          html += '<div class="series-reps">' + repsVal + '</div>';
+          html += '</button>';
+        }
+        html += '</div>';
+
+        // Timer
+        var restTime = ex.rest;
+        var min = Math.floor(restTime / 60);
+        var sec = restTime % 60;
+        html += '<div class="rest-timer">';
+        html += '<button class="timer-btn reset" onclick="resetTimer(this,' + restTime + ')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg></button>';
+        html += '<div class="timer-display">' + min + ':' + (sec < 10 ? '0' : '') + sec + '</div>';
+        html += '<button class="timer-btn start" onclick="startTimer(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>';
+        html += '</div>';
+
+        html += '</div>'; // exercise-card
+      }
+
+      listEl.innerHTML = html;
+      updateDayProgress(exercises);
+    }
+
+    function updateDayProgress(exercises) {
+      if (!exercises) return;
+      var total = exercises.length;
+      var done = 0;
+      for (var i = 0; i < exercises.length; i++) {
+        var sets = state.exerciseSets[exercises[i].key] || [];
+        var allDone = true;
+        for (var s = 0; s < exercises[i].sets; s++) {
+          if (!sets[s]) { allDone = false; break; }
+        }
+        if (allDone && sets.length >= exercises[i].sets) done++;
+      }
+      document.getElementById('dayProgressLabel').textContent = done + '/' + total + ' ejercicios';
+      document.getElementById('dayProgressBar').style.width = (done / total * 100) + '%';
+    }
+
+    function getProgression(key, repRange) {
+      // Check if all sets hit max reps last session
+      var lastSets = state.exerciseSets[key] || [];
+      if (lastSets.length === 0) return '';
+      var allMaxed = true;
+      for (var i = 0; i < lastSets.length; i++) {
+        if (!lastSets[i] || lastSets[i] < repRange[1]) { allMaxed = false; break; }
+      }
+      if (allMaxed && lastSets.length >= 3) return 'Sube +2.5kg';
+      return '';
+    }
+
+    /* ============================================
+       NUTRICION
+       ============================================ */
+    function renderNutricion() {
+      if (!nutritionPlan) return;
+
+      // Day tabs
+      var tabsEl = document.getElementById('nutriDayTabs');
+      var daysOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+      var daysLabels = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
+      var tabsHtml = '';
+      for (var i = 0; i < daysOrder.length; i++) {
+        var d = daysOrder[i];
+        var dayData = nutritionPlan.days[d];
+        var isActive = d === state.currentNutriDay;
+        var cls = 'day-tab ' + (dayData.type === 'training' ? 'training' : 'rest') + (isActive ? ' active' : '');
+        tabsHtml += '<button class="' + cls + '" onclick="switchNutriDay(\'' + d + '\')">' + daysLabels[i] + '</button>';
+      }
+      tabsEl.innerHTML = tabsHtml;
+
+      renderNutriDay(state.currentNutriDay);
+      renderWater('nutriWaterGlasses', 'nutriWaterCount');
+      renderGroceryList();
+    }
+
+    function renderNutriDay(dayKey) {
+      var dayData = nutritionPlan.days[dayKey];
+      if (!dayData) return;
+
+      // Macros
+      var targets = nutritionPlan.targets;
+      var macrosEl = document.getElementById('nutriMacros');
+      var macros = [
+        { label: 'Proteina', value: dayData.totalP, target: targets.protein.max, color: 'var(--push-terracotta)' },
+        { label: 'Carbos', value: dayData.totalC, target: targets.carbs.max, color: 'var(--pull-sage)' },
+        { label: 'Grasas', value: dayData.totalG, target: targets.fat.max, color: 'var(--accent-sand)' }
+      ];
+
+      var circumference = 2 * Math.PI * 26; // r=26
+
+      var mHtml = '';
+      for (var m = 0; m < macros.length; m++) {
+        var pct = Math.min(macros[m].value / macros[m].target, 1);
+        var offset = circumference * (1 - pct);
+        mHtml += '<div class="macro-item"><div class="macro-ring">';
+        mHtml += '<svg viewBox="0 0 64 64"><circle class="ring-bg" cx="32" cy="32" r="26"/>';
+        mHtml += '<circle class="ring-fill" cx="32" cy="32" r="26" stroke="' + macros[m].color + '" stroke-dasharray="' + circumference.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '"/></svg>';
+        mHtml += '<div class="ring-value" style="color:' + macros[m].color + '">' + macros[m].value + 'g</div>';
+        mHtml += '</div><div class="macro-label">' + macros[m].label + '</div></div>';
+      }
+      macrosEl.innerHTML = mHtml;
+
+      // Meals
+      var mealEl = document.getElementById('mealList');
+      var meals = dayData.meals;
+      var mealHtml = '';
+
+      for (var j = 0; j < meals.length; j++) {
+        var meal = meals[j];
+        mealHtml += '<div class="meal-card">';
+        mealHtml += '<div class="meal-header"><div class="meal-name">' + meal.name + '</div><div class="meal-kcal">' + meal.kcal + ' kcal</div></div>';
+        mealHtml += '<ul class="meal-items">';
+        for (var k = 0; k < meal.items.length; k++) {
+          mealHtml += '<li class="meal-item"><span class="item-name">' + meal.items[k].name + '</span><span class="item-amount">' + meal.items[k].amount + '</span></li>';
+        }
+        mealHtml += '</ul>';
+        mealHtml += '<div class="meal-macros"><span>P: ' + meal.protein + 'g</span><span>C: ' + meal.carbs + 'g</span><span>G: ' + meal.fat + 'g</span><span>' + meal.prepTime + ' min</span></div>';
+        mealHtml += '</div>';
+      }
+      mealEl.innerHTML = mealHtml;
+    }
+
+    function renderGroceryList() {
+      var el = document.getElementById('grocerySection');
+      if (!nutritionPlan || !nutritionPlan.groceryList) { el.innerHTML = ''; return; }
+
+      var gl = nutritionPlan.groceryList;
+      var categories = {
+        proteinas: 'Proteinas',
+        lacteos: 'Lacteos',
+        carbohidratos: 'Carbohidratos',
+        frutas_verduras: 'Frutas y Verduras',
+        despensa: 'Despensa',
+        suplementos: 'Suplementos'
+      };
+
+      var html = '<h3 style="font-size:.8rem;color:var(--text-primary);margin-bottom:14px;letter-spacing:.08em">Lista del Super Semanal</h3>';
+      var keys = Object.keys(categories);
+      for (var i = 0; i < keys.length; i++) {
+        var items = gl[keys[i]];
+        if (!items || items.length === 0) continue;
+        html += '<div class="grocery-section"><div class="grocery-title">' + categories[keys[i]] + '</div>';
+        for (var j = 0; j < items.length; j++) {
+          html += '<div class="grocery-item">' + items[j] + '</div>';
+        }
+        html += '</div>';
+      }
+      el.innerHTML = html;
+    }
+
+    /* ============================================
+       SUPLEMENTOS
+       ============================================ */
+    function renderSuplementos() {
+      var type = getTodayType();
+      var isTraining = type !== 'rest';
+
+      var html = '';
+      // Creatina
+      html += '<div class="supplement-card" onclick="toggleSuppState(\'creatina\')">';
+      html += '<div class="supp-icon" style="background:var(--push-terracotta-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--push-terracotta)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>';
+      html += '<div class="supp-info"><div class="supp-name">Creatina Monohidrato</div><div class="supp-dose">5g diarios · Optimum Nutrition</div>';
+      html += '<div class="supp-dose" style="color:var(--text-muted);margin-top:1px">Todos los dias, cualquier momento</div></div>';
+      html += '<div class="supp-check ' + (state.supps.creatina ? 'done' : '') + '">&#10003;</div></div>';
+
+      // Proteina
+      html += '<div class="supplement-card' + (!isTraining ? ' style="opacity:0.5"' : '') + '" onclick="' + (isTraining ? 'toggleSuppState(\'proteina\')' : '') + '">';
+      html += '<div class="supp-icon" style="background:var(--pull-sage-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pull-sage)" stroke-width="1.8" stroke-linecap="round"><path d="M8 2h8v4a4 4 0 01-4 4 4 4 0 01-4-4V2z"/><path d="M8 10v8a4 4 0 004 4 4 4 0 004-4v-8"/></svg></div>';
+      html += '<div class="supp-info"><div class="supp-name">Proteina Whey</div><div class="supp-dose">1 scoop post-entreno · Optimum Nutrition</div>';
+      html += '<div class="supp-dose" style="color:var(--text-muted);margin-top:1px">' + (isTraining ? 'Hoy es dia de entrenamiento' : 'Solo dias de entrenamiento (hoy no)') + '</div></div>';
+      html += '<div class="supp-check ' + (state.supps.proteina ? 'done' : '') + '">&#10003;</div></div>';
+
+      document.getElementById('suppList').innerHTML = html;
+      renderWater('suppWaterGlasses', 'suppWaterCount');
+    }
+
+    /* ============================================
+       WATER TRACKER
+       ============================================ */
+    function renderWater(containerId, countId) {
+      var el = document.getElementById(containerId);
+      var countEl = document.getElementById(countId);
+      if (!el) return;
+      var total = 12;
+      var filled = state.water;
+      var dropSvg = '<svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0L12 2.69z"/></svg>';
+      var html = '';
+      for (var i = 0; i < total; i++) {
+        html += '<div class="water-glass ' + (i < filled ? 'filled' : '') + '" onclick="toggleWaterGlass(' + i + ')">' + dropSvg + '</div>';
+      }
+      el.innerHTML = html;
+      if (countEl) countEl.textContent = filled + '/' + total;
+    }
+
+    /* ============================================
+       INTERACTIONS
+       ============================================ */
+
+    window.toggleSet = function(btn, exKey, setIdx, minReps, maxReps) {
+      if (!state.exerciseSets[exKey]) state.exerciseSets[exKey] = [];
+      var sets = state.exerciseSets[exKey];
+
+      if (sets[setIdx]) {
+        // Uncomplete
+        sets[setIdx] = 0;
+        btn.classList.remove('completed');
+        btn.querySelector('.series-reps').textContent = '—';
+      } else {
+        // Complete — prompt for reps
+        var reps = prompt('Reps completadas (' + minReps + '-' + maxReps + '):', maxReps);
+        if (reps === null) return;
+        reps = parseInt(reps) || maxReps;
+        sets[setIdx] = reps;
+        btn.classList.add('completed');
+        btn.querySelector('.series-reps').textContent = reps;
+
+        // Log to Supabase
+        var weight = state.exerciseWeights[exKey] || 0;
+        VYTAL_DB.insert('exercise_logs', {
+          ejercicio_key: exKey,
+          peso_kg: parseFloat(weight),
+          serie: setIdx + 1,
+          reps: reps,
+          fecha: dateKey()
+        });
+      }
+      saveState();
+
+      // Update progress
+      var type = getTodayType();
+      if (trainingPlan && trainingPlan.blocks[type]) {
+        updateDayProgress(trainingPlan.blocks[type].exercises);
+      }
+    };
+
+    window.updateWeight = function(input) {
+      var key = input.getAttribute('data-exercise');
+      state.exerciseWeights[key] = input.value;
+      saveState();
+    };
+
+    window.toggleSuppState = function(supp) {
+      state.supps[supp] = !state.supps[supp];
+      saveState();
+      renderSuplementos();
+      renderDashboard();
+
+      VYTAL_DB.insert('supplement_logs', {
+        fecha: dateKey(),
+        creatina: state.supps.creatina,
+        proteina: state.supps.proteina,
+        agua_vasos: state.water
+      });
+    };
+
+    window.toggleWaterGlass = function(idx) {
+      if (idx < state.water) {
+        state.water = idx;
+      } else {
+        state.water = idx + 1;
+      }
+      saveState();
+      renderWater('nutriWaterGlasses', 'nutriWaterCount');
+      renderWater('suppWaterGlasses', 'suppWaterCount');
+      renderDashboard();
+    };
+
+    window.switchNutriDay = function(dayKey) {
+      state.currentNutriDay = dayKey;
+      renderNutricion();
+    };
+
+    /* Timer */
+    var activeTimers = {};
+
+    window.startTimer = function(btn) {
+      var container = btn.parentElement;
+      var display = container.querySelector('.timer-display');
+      var id = container.getAttribute('data-timer-id') || ('t' + Date.now());
+      container.setAttribute('data-timer-id', id);
+
+      if (activeTimers[id]) clearInterval(activeTimers[id]);
+
+      var parts = display.textContent.split(':');
+      var seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+      if (seconds <= 0) return;
+
+      activeTimers[id] = setInterval(function() {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(activeTimers[id]);
+          display.textContent = '0:00';
+          display.style.color = 'var(--push-terracotta)';
+          // Vibrate if supported
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+          return;
+        }
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      }, 1000);
+    };
+
+    window.resetTimer = function(btn, totalSeconds) {
+      var container = btn.parentElement;
+      var display = container.querySelector('.timer-display');
+      var id = container.getAttribute('data-timer-id');
+      if (id && activeTimers[id]) clearInterval(activeTimers[id]);
+      var m = Math.floor(totalSeconds / 60);
+      var s = totalSeconds % 60;
+      display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      display.style.color = '';
+    };
+
+    /* Modal */
+    window.openExerciseModal = function(key) {
+      if (!trainingPlan) return;
+      var ex = null;
+      var blocks = ['push', 'pull'];
+      for (var b = 0; b < blocks.length; b++) {
+        var exs = trainingPlan.blocks[blocks[b]].exercises;
+        for (var i = 0; i < exs.length; i++) {
+          if (exs[i].key === key) { ex = exs[i]; break; }
+        }
+        if (ex) break;
+      }
+      if (!ex) return;
+
+      var html = '<button class="modal-close" onclick="closeModal()">&#10005;</button>';
+      html += '<div class="modal-title">' + ex.name + '</div>';
+
+      // Phases
+      html += '<div class="phase-item"><div class="phase-label start">Posicion inicial</div><div class="phase-text">' + ex.phases.start + '</div></div>';
+      html += '<div class="phase-item"><div class="phase-label ecc">Fase excentrica (bajar)</div><div class="phase-text">' + ex.phases.eccentric + '</div></div>';
+      html += '<div class="phase-item"><div class="phase-label con">Fase concentrica (subir)</div><div class="phase-text">' + ex.phases.concentric + '</div></div>';
+
+      // Errors
+      html += '<div style="margin-top:16px"><div class="phase-label" style="color:var(--danger);margin-bottom:4px">Errores comunes</div>';
+      html += '<ul class="error-list">';
+      for (var e = 0; e < ex.errors.length; e++) {
+        html += '<li>' + ex.errors[e] + '</li>';
+      }
+      html += '</ul></div>';
+
+      // Reps/sets info
+      html += '<div style="margin-top:16px;padding:12px;background:var(--bg-warm);border-radius:var(--radius-sm);font-size:.75rem;color:var(--text-secondary)">';
+      html += '<strong>' + ex.sets + ' series</strong> de <strong>' + ex.repRange[0] + '-' + ex.repRange[1] + ' reps</strong>';
+      html += ' · Descanso: <strong>' + (ex.rest >= 60 ? (ex.rest / 60) + ' min' : ex.rest + ' seg') + '</strong>';
+      html += '</div>';
+
+      document.getElementById('modalBox').innerHTML = html;
+      document.getElementById('modalOverlay').classList.add('open');
+    };
+
+    window.closeModal = function(event) {
+      if (event && event.target !== document.getElementById('modalOverlay') && !event.target.classList.contains('modal-close')) return;
+      document.getElementById('modalOverlay').classList.remove('open');
+    };
+
+    /* Navigation */
+    var pageMap = { dashboard:'pageDashboard', entreno:'pageEntreno', nutricion:'pageNutricion', suplementos:'pageSuplementos' };
+
+    window.navigateTo = function(page) {
+      var pages = document.querySelectorAll('.page');
+      for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+      var el = document.getElementById(pageMap[page]);
+      if (el) { el.classList.add('active'); el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'fadeIn .25s ease'; }
+      var navItems = document.querySelectorAll('.nav-item');
+      for (var j = 0; j < navItems.length; j++) {
+        navItems[j].classList.remove('active');
+        if (navItems[j].getAttribute('data-page') === page) navItems[j].classList.add('active');
+      }
+      window.scrollTo(0, 0);
+      // Lazy render
+      if (page === 'entreno') renderEntreno();
+      if (page === 'nutricion') renderNutricion();
+      if (page === 'suplementos') renderSuplementos();
+      if (page === 'dashboard') renderDashboard();
+    };
+
+    /* ============================================
+       RENDER ALL
+       ============================================ */
+    function renderAll() {
+      renderDateHeader();
+      renderDashboard();
+    }
+
+    /* ============================================
+       SERVICE WORKER
+       ============================================ */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
+
+    /* ============================================
+       INIT
+       ============================================ */
+    loadData();
+
+  })();
+  </script>
+
+</body>
+</html>

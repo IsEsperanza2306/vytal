@@ -1,0 +1,286 @@
+{
+  "program": "Push/Pull Hipertrofia Tren Superior",
+  "level": "Intermedio",
+  "schedule": {
+    "1": "push", "2": "pull", "3": "rest",
+    "4": "push", "5": "pull", "6": "rest", "0": "rest"
+  },
+  "blocks": {
+    "push": {
+      "name": "Bloque A — Empuje",
+      "color": "terracotta",
+      "exercises": [
+        {
+          "key": "press_banca",
+          "name": "Press Banca Barra",
+          "type": "compound",
+          "muscles": "Pecho, Triceps, Deltoides anterior",
+          "rest": 90,
+          "sets": 4,
+          "repRange": [8, 12],
+          "bio": "Retrae escapulas y clava pies al suelo. Baja la barra al pecho bajo controlando 2-3 seg la excentrica. Empuja explosivo.",
+          "phases": {
+            "start": "Acostado en banco, agarre medio, brazos extendidos",
+            "eccentric": "Baja controlado 2-3 seg hasta tocar pecho bajo",
+            "concentric": "Empuja explosivo hasta extension completa"
+          },
+          "errors": [
+            "Rebotar la barra en el pecho",
+            "Levantar gluteos del banco",
+            "Agarre demasiado ancho o angosto"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-bench-press-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-bench-press-side.mp4#t=0.1"
+        },
+        {
+          "key": "press_inclinado",
+          "name": "Press Inclinado Mancuernas",
+          "type": "compound",
+          "muscles": "Pecho superior, Deltoides anterior",
+          "rest": 90,
+          "sets": 4,
+          "repRange": [8, 12],
+          "bio": "Banco a 30-45 grados. Baja mancuernas hasta que codos queden ligeramente debajo del hombro. Aprieta pecho arriba sin chocar mancuernas.",
+          "phases": {
+            "start": "Sentado en banco inclinado, mancuernas a los lados del pecho",
+            "eccentric": "Baja controlado abriendo codos a 45 grados",
+            "concentric": "Empuja hacia arriba y ligeramente hacia adentro"
+          },
+          "errors": [
+            "Inclinacion excesiva (mas de 45 grados)",
+            "Chocar mancuernas arriba perdiendo tension",
+            "Arquear espalda baja excesivamente"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-incline-bench-press-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-incline-bench-press-side.mp4#t=0.1"
+        },
+        {
+          "key": "pec_deck",
+          "name": "Pec Deck (Mariposa)",
+          "type": "isolation",
+          "muscles": "Pecho (fibras mediales)",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [10, 15],
+          "bio": "Codos ligeramente flexionados durante todo el movimiento. Aprieta 1 segundo en la contraccion maxima. Controla la vuelta.",
+          "phases": {
+            "start": "Sentado, brazos abiertos, codos a la altura del pecho",
+            "eccentric": "Abre controlado sintiendo estiramiento en pecho",
+            "concentric": "Cierra apretando pecho, pausa 1 seg al centro"
+          },
+          "errors": [
+            "Extender brazos completamente (carga codos)",
+            "Usar impulso del torso",
+            "No hacer pausa en la contraccion"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-machine-pec-deck-fly-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-machine-pec-deck-fly-side.mp4#t=0.1"
+        },
+        {
+          "key": "press_militar",
+          "name": "Press Militar de Pie",
+          "type": "compound",
+          "muscles": "Deltoides anterior y lateral, Triceps",
+          "rest": 90,
+          "sets": 4,
+          "repRange": [8, 12],
+          "bio": "De pie, core apretado, barra a la altura de claviculas. Empuja vertical pasando la barra cerca de la cara. Bloquea arriba sin hiperextender lumbar.",
+          "phases": {
+            "start": "De pie, agarre a la anchura de hombros, barra en claviculas",
+            "eccentric": "Baja controlado hasta claviculas",
+            "concentric": "Empuja vertical, cabeza pasa ligeramente al frente al terminar"
+          },
+          "errors": [
+            "Arquear excesivamente la espalda baja",
+            "Empujar la barra hacia adelante en vez de vertical",
+            "No apretar gluteos y core"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-overhead-press-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-overhead-press-side.mp4#t=0.1"
+        },
+        {
+          "key": "elevaciones_laterales",
+          "name": "Elevaciones Laterales",
+          "type": "isolation",
+          "muscles": "Deltoides lateral",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [12, 15],
+          "bio": "Codos ligeramente flexionados, eleva hasta la altura de los hombros. Controla la bajada. Inclina ligeramente el menique hacia arriba como si sirvieras agua.",
+          "phases": {
+            "start": "De pie, mancuernas a los lados, codos ligeramente flexionados",
+            "eccentric": "Baja controlado resistiendo la gravedad 2 seg",
+            "concentric": "Eleva hasta la altura de hombros, menique arriba"
+          },
+          "errors": [
+            "Usar impulso con el torso (swing)",
+            "Subir por encima de los hombros",
+            "Brazos completamente rectos (carga codos)"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-lateral-raise-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-lateral-raise-side.mp4#t=0.1"
+        },
+        {
+          "key": "extension_triceps",
+          "name": "Extension Triceps Polea",
+          "type": "isolation",
+          "muscles": "Triceps (cabeza larga y lateral)",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [10, 15],
+          "bio": "Codos pegados al cuerpo durante todo el movimiento. Solo se mueve el antebrazo. Aprieta 1 seg abajo en la extension completa.",
+          "phases": {
+            "start": "De pie frente a polea alta, codos pegados al torso",
+            "eccentric": "Sube controlado hasta 90 grados",
+            "concentric": "Extiende completamente, aprieta triceps 1 seg"
+          },
+          "errors": [
+            "Separar codos del cuerpo",
+            "Inclinarse hacia adelante para hacer fuerza",
+            "No completar la extension"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-pushdown-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-pushdown-side.mp4#t=0.1"
+        }
+      ]
+    },
+    "pull": {
+      "name": "Bloque B — Traccion",
+      "color": "sage",
+      "exercises": [
+        {
+          "key": "jalon_pecho",
+          "name": "Jalon al Pecho Polea Ancha",
+          "type": "compound",
+          "muscles": "Dorsal ancho, Romboides, Biceps",
+          "rest": 90,
+          "sets": 4,
+          "repRange": [8, 12],
+          "bio": "Agarre prono ancho. Jala la barra al pecho superior sacando pecho. Aprieta escapulas abajo y atras. Controla la subida.",
+          "phases": {
+            "start": "Sentado, agarre ancho prono, brazos extendidos arriba",
+            "eccentric": "Sube controlado estirando dorsales completamente",
+            "concentric": "Jala al pecho sacando pecho, escapulas abajo y atras"
+          },
+          "errors": [
+            "Jalar detras de la nuca (lesion de hombro)",
+            "Inclinarse excesivamente hacia atras",
+            "Jalar solo con biceps sin activar espalda"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-lat-pulldown-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-lat-pulldown-side.mp4#t=0.1"
+        },
+        {
+          "key": "remo_barra",
+          "name": "Remo Barra Inclinado",
+          "type": "compound",
+          "muscles": "Dorsal ancho, Romboides, Trapecio",
+          "rest": 90,
+          "sets": 4,
+          "repRange": [8, 12],
+          "bio": "Torso a 45 grados, espalda recta, core firme. Jala la barra al ombligo. Los codos pasan detras del torso. Aprieta escapulas arriba.",
+          "phases": {
+            "start": "Inclinado 45 grados, agarre prono a la anchura de hombros",
+            "eccentric": "Baja controlado estirando dorsales",
+            "concentric": "Jala al ombligo, codos atras, aprieta escapulas"
+          },
+          "errors": [
+            "Redondear la espalda baja",
+            "Usar impulso subiendo el torso",
+            "No llevar codos suficientemente atras"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-bent-over-row-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-barbell-bent-over-row-side.mp4#t=0.1"
+        },
+        {
+          "key": "remo_mancuerna",
+          "name": "Remo Mancuerna Una Mano",
+          "type": "compound",
+          "muscles": "Dorsal ancho (unilateral), Romboides",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [10, 12],
+          "bio": "Rodilla y mano en banco. Espalda paralela al suelo. Jala el codo hacia arriba y atras, no hacia afuera. Rota ligeramente el torso arriba.",
+          "phases": {
+            "start": "Apoyo con rodilla y mano en banco, espalda paralela al suelo",
+            "eccentric": "Baja controlado estirando completamente el dorsal",
+            "concentric": "Jala codo hacia arriba y atras, ligera rotacion de torso"
+          },
+          "errors": [
+            "Jalar el codo hacia afuera (trabaja trapecio, no dorsal)",
+            "Rotar excesivamente el torso",
+            "No estirar completamente abajo"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-row-unilateral-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-row-unilateral-side.mp4#t=0.1"
+        },
+        {
+          "key": "face_pulls",
+          "name": "Face Pulls",
+          "type": "isolation",
+          "muscles": "Deltoides posterior, Rotadores externos",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [12, 15],
+          "bio": "Polea a la altura de la cara. Jala hacia la frente separando las manos. Rota externamente los hombros arriba. Aprieta escapulas.",
+          "phases": {
+            "start": "De pie frente a polea alta con cuerda, brazos extendidos",
+            "eccentric": "Regresa controlado estirando deltoides posterior",
+            "concentric": "Jala hacia la cara, separa manos, rotacion externa"
+          },
+          "errors": [
+            "Jalar muy bajo (se convierte en remo)",
+            "No hacer rotacion externa al final",
+            "Usar demasiado peso perdiendo forma"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-face-pull-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-cable-face-pull-side.mp4#t=0.1"
+        },
+        {
+          "key": "curl_predicador",
+          "name": "Curl Predicador",
+          "type": "isolation",
+          "muscles": "Biceps (cabeza corta), Braquial",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [10, 12],
+          "bio": "Axilas apoyadas en el borde del banco predicador. Baja hasta extension casi completa (no bloquees codo). Sube contrayendo biceps sin impulso.",
+          "phases": {
+            "start": "Axilas en el borde del predicador, brazos extendidos (no bloqueados)",
+            "eccentric": "Baja controlado 2-3 seg hasta casi extension completa",
+            "concentric": "Curlea contrayendo biceps, sin despegar codos del pad"
+          },
+          "errors": [
+            "Extender completamente el codo (riesgo de lesion)",
+            "Despegar los codos del pad para hacer fuerza",
+            "Usar impulso con los hombros"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-preacher-curl-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-preacher-curl-side.mp4#t=0.1"
+        },
+        {
+          "key": "curl_martillo",
+          "name": "Curl Martillo",
+          "type": "isolation",
+          "muscles": "Braquiorradial, Biceps (cabeza larga)",
+          "rest": 60,
+          "sets": 3,
+          "repRange": [10, 12],
+          "bio": "Agarre neutro (palmas enfrentadas). Codos pegados al cuerpo. Sube alternando o simultaneo. No balancees el torso.",
+          "phases": {
+            "start": "De pie, mancuernas a los lados con agarre neutro",
+            "eccentric": "Baja controlado sin soltar la tension",
+            "concentric": "Curlea manteniendo munecas neutras, codos fijos"
+          },
+          "errors": [
+            "Balancear el torso para subir el peso",
+            "Rotar las munecas durante el movimiento",
+            "Separar los codos del cuerpo"
+          ],
+          "refImage": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-hammer-curl-front.mp4#t=0.1",
+          "refGif": "https://media.musclewiki.com/media/uploads/videos/branded/male-dumbbell-hammer-curl-side.mp4#t=0.1"
+        }
+      ]
+    }
+  }
+}
