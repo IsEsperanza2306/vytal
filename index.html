@@ -570,18 +570,102 @@ img, svg { display: block; max-width: 100%; }
 
 .exercise-card .exercise-meta { font-size: 0.68rem; color: var(--text-secondary); margin-top: 1px; }
 
-.exercise-card .svg-container {
-  background: linear-gradient(135deg, var(--bg-warm), var(--bg-input));
+/* Exercise visual demo area */
+.exercise-demo {
+  position: relative;
   border-radius: var(--radius-md);
-  padding: 16px;
   margin-bottom: 14px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-warm), var(--bg-input));
+}
+
+.exercise-demo .demo-gif {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-md);
+}
+
+.exercise-demo .demo-gif.loading {
+  opacity: 0;
+  height: 0;
+}
+
+.exercise-demo .demo-gif.loaded {
+  opacity: 1;
+  height: 200px;
+  animation: fadeIn .3s ease;
+}
+
+/* SVG fallback shown while GIF loads or if offline */
+.exercise-demo .svg-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 110px;
+  padding: 16px;
+  min-height: 120px;
 }
 
-.exercise-card .svg-container svg { width: 100%; max-width: 180px; height: auto; }
+.exercise-demo .svg-fallback svg { width: 100%; max-width: 180px; height: auto; }
+
+.exercise-demo .svg-fallback.hidden { display: none; }
+
+/* Muscle tags overlay */
+.exercise-demo .muscle-tags {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.exercise-demo .muscle-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.exercise-demo .muscle-tag.primary { background: rgba(196,97,58,0.85); }
+.exercise-demo.pull .muscle-tag.primary { background: rgba(91,140,111,0.85); }
+
+/* Video reference button */
+.video-ref-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-sm);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1.5px solid var(--border-medium);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.video-ref-btn:active { transform: scale(.97); }
+
+.video-ref-btn svg { width: 16px; height: 16px; }
+
+.video-ref-btn.push { border-color: var(--push-terracotta-medium); color: var(--push-terracotta); }
+.video-ref-btn.pull { border-color: var(--pull-sage-medium); color: var(--pull-sage); }
 
 .exercise-card .bio-tip {
   background: var(--bg-warm);
@@ -1800,6 +1884,41 @@ img, svg { display: block; max-width: 100%; }
     var nutritionPlan = {"profile":{"age":33,"height":174,"weight":83,"goal":"Hipertrofia tren superior","level":"Intermedio"},"targets":{"calories":{"min":2400,"max":2600},"protein":{"min":160,"max":170,"unit":"g"},"carbs":{"min":250,"max":280,"unit":"g"},"fat":{"min":70,"max":80,"unit":"g"},"water":{"liters":3,"glasses":12}},"days":{"lunes":{"type":"training","totalKcal":2520,"totalP":168,"totalC":262,"totalG":74,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":580,"protein":36,"carbs":48,"fat":26,"items":[{"name":"Huevos revueltos con jitomate","amount":"4 piezas + 1/2 jitomate"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Frijoles refritos","amount":"120g (1/2 taza)"},{"name":"Salsa verde","amount":"al gusto"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":780,"protein":54,"carbs":82,"fat":20,"items":[{"name":"Pechuga de pollo a la plancha","amount":"200g"},{"name":"Arroz blanco","amount":"180g cocido (1 taza)"},{"name":"Ensalada (lechuga, pepino, tomate)","amount":"1 tazon"},{"name":"Aguacate","amount":"1/2 pieza"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":15,"kcal":520,"protein":42,"carbs":52,"fat":16,"items":[{"name":"Atun en agua (escurrido)","amount":"2 latas (120g)"},{"name":"Tostadas horneadas","amount":"4 piezas"},{"name":"Aguacate","amount":"1/4 pieza"},{"name":"Limon y salsa","amount":"al gusto"},{"name":"Yogur griego natural","amount":"150g"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":640,"protein":36,"carbs":80,"fat":12,"items":[{"name":"Whey protein (1 scoop) con leche","amount":"300ml leche + 1 scoop"},{"name":"Platano","amount":"1 pieza grande"},{"name":"Avena instantanea","amount":"60g"},{"name":"Creatina","amount":"5g"}]}]},"martes":{"type":"training","totalKcal":2480,"totalP":165,"totalC":258,"totalG":72,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":560,"protein":38,"carbs":42,"fat":24,"items":[{"name":"Omelette de claras con jamon y queso","amount":"3 claras + 1 entero + 40g jamon + 30g queso"},{"name":"Tortillas de harina integral","amount":"2 piezas"},{"name":"Salsa roja","amount":"al gusto"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":760,"protein":50,"carbs":86,"fat":18,"items":[{"name":"Carne molida de res magra","amount":"180g"},{"name":"Pasta integral","amount":"120g (seca)"},{"name":"Salsa de tomate natural","amount":"100g"},{"name":"Queso rallado","amount":"20g"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":480,"protein":40,"carbs":50,"fat":14,"items":[{"name":"Queso cottage","amount":"200g"},{"name":"Galletas integrales","amount":"6 piezas"},{"name":"Platano rebanado","amount":"1 pieza"},{"name":"Miel","amount":"1 cucharada"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":680,"protein":37,"carbs":80,"fat":16,"items":[{"name":"Whey protein con agua","amount":"1 scoop + 300ml"},{"name":"Sandwich de jamon de pavo","amount":"2 rebanadas pan integral + 60g jamon + lechuga"},{"name":"Platano","amount":"1 pieza"},{"name":"Creatina","amount":"5g"}]}]},"miercoles":{"type":"rest","totalKcal":2400,"totalP":162,"totalC":248,"totalG":72,"meals":[{"name":"Desayuno","time":"8:00","prepTime":10,"kcal":540,"protein":34,"carbs":50,"fat":22,"items":[{"name":"Hotcakes de avena","amount":"60g avena + 1 huevo + 1 platano"},{"name":"Yogur griego","amount":"100g"},{"name":"Miel","amount":"1 cucharada"}]},{"name":"Comida","time":"14:00","prepTime":20,"kcal":740,"protein":52,"carbs":72,"fat":22,"items":[{"name":"Pollo deshebrado","amount":"200g"},{"name":"Arroz rojo","amount":"180g cocido"},{"name":"Frijoles de olla","amount":"120g"},{"name":"Tortillas de maiz","amount":"2 piezas"},{"name":"Aguacate","amount":"1/4 pieza"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":620,"protein":44,"carbs":56,"fat":22,"items":[{"name":"Huevos estrellados","amount":"3 piezas"},{"name":"Frijoles refritos","amount":"100g"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Salsa y queso fresco","amount":"30g queso"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":500,"protein":32,"carbs":70,"fat":6,"items":[{"name":"Yogur griego con granola","amount":"200g yogur + 50g granola"},{"name":"Fresas","amount":"100g"},{"name":"Creatina","amount":"5g (mezclar con yogur)"}]}]},"jueves":{"type":"training","totalKcal":2540,"totalP":170,"totalC":264,"totalG":76,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":600,"protein":40,"carbs":52,"fat":24,"items":[{"name":"Chilaquiles verdes con huevo","amount":"Totopos + 3 huevos + salsa verde"},{"name":"Crema y queso fresco","amount":"1 cda crema + 30g queso"},{"name":"Frijoles","amount":"100g"}]},{"name":"Comida","time":"13:30","prepTime":15,"kcal":720,"protein":52,"carbs":78,"fat":18,"items":[{"name":"Bistec de res a la plancha","amount":"180g"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Nopales asados","amount":"100g"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Limon y sal","amount":"al gusto"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":560,"protein":42,"carbs":54,"fat":18,"items":[{"name":"Sincronizadas de jamon y queso","amount":"2 tortillas harina + 60g jamon + 40g queso"},{"name":"Yogur griego","amount":"150g"},{"name":"Fruta (manzana)","amount":"1 pieza"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":660,"protein":36,"carbs":80,"fat":16,"items":[{"name":"Whey protein con leche","amount":"1 scoop + 300ml leche"},{"name":"Pan integral con crema de cacahuate","amount":"2 rebanadas + 1 cda"},{"name":"Platano","amount":"1 pieza"},{"name":"Creatina","amount":"5g"}]}]},"viernes":{"type":"training","totalKcal":2500,"totalP":166,"totalC":260,"totalG":74,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":560,"protein":36,"carbs":46,"fat":24,"items":[{"name":"Molletes de frijol con queso","amount":"2 mitades bolillo + frijoles + queso gratinado"},{"name":"Salsa y aguacate","amount":"al gusto + 1/4 pieza"},{"name":"Yogur griego","amount":"100g"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":780,"protein":54,"carbs":84,"fat":20,"items":[{"name":"Pechuga de pollo en salsa roja","amount":"200g pollo + salsa"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Ensalada verde","amount":"1 tazon"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":500,"protein":40,"carbs":50,"fat":14,"items":[{"name":"Quesadillas de pollo","amount":"2 tortillas + 100g pollo deshebrado + 40g queso"},{"name":"Salsa y crema","amount":"al gusto"},{"name":"Pepino con limon","amount":"1 pieza"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":660,"protein":36,"carbs":80,"fat":16,"items":[{"name":"Whey protein con leche","amount":"1 scoop + 300ml"},{"name":"Avena con platano","amount":"60g avena + 1 platano"},{"name":"Creatina","amount":"5g"}]}]},"sabado":{"type":"rest","totalKcal":2380,"totalP":160,"totalC":246,"totalG":70,"meals":[{"name":"Desayuno","time":"9:00","prepTime":15,"kcal":580,"protein":36,"carbs":52,"fat":22,"items":[{"name":"Huevos a la mexicana","amount":"3 huevos + jitomate + cebolla + chile"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Frijoles","amount":"120g"},{"name":"Jugo de naranja natural","amount":"250ml"}]},{"name":"Comida","time":"14:00","prepTime":20,"kcal":760,"protein":50,"carbs":78,"fat":22,"items":[{"name":"Carne molida con papa","amount":"170g carne + 150g papa"},{"name":"Arroz rojo","amount":"150g cocido"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Salsa roja","amount":"al gusto"}]},{"name":"Cena","time":"20:00","prepTime":5,"kcal":520,"protein":42,"carbs":48,"fat":16,"items":[{"name":"Sandwich de atun","amount":"2 rebanadas pan integral + 1 lata atun + mayonesa light"},{"name":"Lechuga y jitomate","amount":"al gusto"},{"name":"Yogur griego","amount":"150g"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":520,"protein":32,"carbs":68,"fat":10,"items":[{"name":"Licuado de platano con avena","amount":"1 platano + 40g avena + 300ml leche"},{"name":"Crema de cacahuate","amount":"1 cucharada"},{"name":"Creatina","amount":"5g"}]}]},"domingo":{"type":"rest","totalKcal":2400,"totalP":160,"totalC":252,"totalG":72,"meals":[{"name":"Desayuno","time":"9:00","prepTime":10,"kcal":600,"protein":38,"carbs":56,"fat":24,"items":[{"name":"Enfrijoladas con queso y crema","amount":"3 tortillas + frijol licuado + 30g queso + crema"},{"name":"Huevo estrellado encima","amount":"2 piezas"}]},{"name":"Comida","time":"14:30","prepTime":20,"kcal":740,"protein":50,"carbs":76,"fat":20,"items":[{"name":"Pollo al horno con verduras","amount":"200g muslo + calabaza + chayote"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":540,"protein":40,"carbs":52,"fat":18,"items":[{"name":"Tacos de carne molida","amount":"3 tortillas + 150g carne"},{"name":"Queso, salsa y aguacate","amount":"20g queso + 1/4 aguacate"},{"name":"Limon","amount":"al gusto"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":520,"protein":32,"carbs":68,"fat":10,"items":[{"name":"Queso cottage con fruta","amount":"200g cottage + fresas o mango"},{"name":"Granola","amount":"40g"},{"name":"Creatina","amount":"5g (mezclar)"}]}]}},"groceryList":{"proteinas":["Pechuga de pollo (1.2kg)","Carne molida de res magra (500g)","Bistec de res (200g)","Huevos (2 docenas)","Atun en agua (6 latas)","Jamon de pavo (200g)","Jamon (100g)"],"lacteos":["Yogur griego natural (1kg)","Queso cottage (400g)","Queso Oaxaca/manchego (200g)","Queso fresco (150g)","Leche entera o semidescremada (2L)","Crema (chica)"],"carbohidratos":["Tortillas de maiz (2 paquetes)","Tortillas de harina integral (1 paquete)","Pan integral (1 bolsa)","Arroz (500g)","Avena instantanea (500g)","Pasta integral (250g)","Granola (300g)","Bolillo (2 piezas)","Tostadas horneadas (1 paquete)","Galletas integrales (1 paquete)"],"frutas_verduras":["Platanos (6 piezas)","Aguacate (3 piezas)","Jitomate (6 piezas)","Lechuga (1 pieza)","Pepino (3 piezas)","Cebolla (2 piezas)","Chile serrano (al gusto)","Limon (6 piezas)","Manzana (2 piezas)","Fresas (500g)","Naranja para jugo (6 piezas)","Nopal (4 piezas)","Calabaza (2 piezas)","Chayote (2 piezas)"],"despensa":["Frijoles (500g o 2 latas)","Salsa verde (1 frasco)","Salsa roja (1 frasco)","Crema de cacahuate (1 frasco chico)","Aceite de oliva","Miel (1 frasco chico)","Mayonesa light (1 frasco chico)","Totopos (1 bolsa)"],"suplementos":["Creatina ON (ya en stock: 1.2kg)","Whey Protein ON (revisar stock)"]}};
 
     /* ============================================
+       EXERCISE GIF REFERENCES
+       Using ExRx.net exercise images (public fitness reference)
+       ============================================ */
+    var EXERCISE_GIFS = {
+      press_banca: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bench-Press.gif',
+      press_inclinado: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Incline-Dumbbell-Press.gif',
+      pec_deck: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pec-Deck-Fly.gif',
+      press_militar: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Overhead-Press.gif',
+      elevaciones_laterales: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif',
+      extension_triceps: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pushdown.gif',
+      jalon_pecho: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif',
+      remo_barra: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bent-Over-Row.gif',
+      remo_mancuerna: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Row.gif',
+      face_pulls: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Face-Pull.gif',
+      curl_predicador: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Preacher-Curl.gif',
+      curl_martillo: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Hammer-Curl.gif'
+    };
+
+    /* YouTube search links for each exercise */
+    var EXERCISE_VIDEOS = {
+      press_banca: 'https://www.youtube.com/results?search_query=press+banca+barra+tecnica+correcta',
+      press_inclinado: 'https://www.youtube.com/results?search_query=press+inclinado+mancuernas+tecnica',
+      pec_deck: 'https://www.youtube.com/results?search_query=pec+deck+mariposa+tecnica+correcta',
+      press_militar: 'https://www.youtube.com/results?search_query=press+militar+barra+de+pie+tecnica',
+      elevaciones_laterales: 'https://www.youtube.com/results?search_query=elevaciones+laterales+mancuernas+tecnica',
+      extension_triceps: 'https://www.youtube.com/results?search_query=extension+triceps+polea+alta+tecnica',
+      jalon_pecho: 'https://www.youtube.com/results?search_query=jalon+al+pecho+polea+ancha+tecnica',
+      remo_barra: 'https://www.youtube.com/results?search_query=remo+con+barra+inclinado+tecnica',
+      remo_mancuerna: 'https://www.youtube.com/results?search_query=remo+mancuerna+una+mano+tecnica',
+      face_pulls: 'https://www.youtube.com/results?search_query=face+pulls+polea+tecnica+correcta',
+      curl_predicador: 'https://www.youtube.com/results?search_query=curl+predicador+mancuerna+tecnica',
+      curl_martillo: 'https://www.youtube.com/results?search_query=curl+martillo+mancuernas+tecnica'
+    };
+
+    /* ============================================
        CONSTANTS
        ============================================ */
     var now = new Date();
@@ -2110,12 +2229,30 @@ img, svg { display: block; max-width: 100%; }
         // Body (hidden when completed)
         html += '<div class="exercise-body">';
 
-        // SVG
-        html += '<div class="svg-container">' + (window.VYTAL_SVG ? VYTAL_SVG.render(ex.key) : '') + '</div>';
+        // Demo area: GIF with SVG fallback
+        var gifUrl = EXERCISE_GIFS[ex.key] || '';
+        var muscles = ex.muscles.split(',');
+        html += '<div class="exercise-demo ' + type + '">';
+        if (gifUrl) {
+          html += '<img class="demo-gif loading" src="' + gifUrl + '" alt="' + ex.name + '" loading="lazy" onload="this.classList.remove(\'loading\');this.classList.add(\'loaded\');this.parentElement.querySelector(\'.svg-fallback\').classList.add(\'hidden\')" onerror="this.style.display=\'none\'">';
+        }
+        html += '<div class="svg-fallback">' + (window.VYTAL_SVG ? VYTAL_SVG.render(ex.key) : '') + '</div>';
+        // Muscle tags overlay
+        html += '<div class="muscle-tags">';
+        for (var mt = 0; mt < muscles.length; mt++) {
+          html += '<span class="muscle-tag' + (mt === 0 ? ' primary' : '') + '">' + muscles[mt].trim() + '</span>';
+        }
+        html += '</div>';
+        html += '</div>';
 
-        // Detail button
-        html += '<div style="text-align:center;margin:-6px 0 12px">';
-        html += '<button onclick="openExerciseModal(\'' + ex.key + '\')" style="font-size:.7rem;color:var(--' + (type === 'push' ? 'push-terracotta' : 'pull-sage') + ');font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 16px;border-radius:var(--radius-sm);background:var(--' + (type === 'push' ? 'push-terracotta-soft' : 'pull-sage-soft') + ');border:none;cursor:pointer">Ver fases y errores</button>';
+        // Video + Detail buttons
+        html += '<div style="display:flex;gap:8px;margin-bottom:12px">';
+        html += '<a href="' + (EXERCISE_VIDEOS[ex.key] || '#') + '" target="_blank" rel="noopener" class="video-ref-btn ' + type + '" style="flex:1">';
+        html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+        html += 'Ver video</a>';
+        html += '<button onclick="openExerciseModal(\'' + ex.key + '\')" class="video-ref-btn ' + type + '" style="flex:1">';
+        html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+        html += 'Fases y errores</button>';
         html += '</div>';
 
         // Bio tip
