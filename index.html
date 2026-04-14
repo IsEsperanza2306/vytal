@@ -6,40 +6,1199 @@
   <meta name="theme-color" content="#FAFAF8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="/manifest.json">
   <title>VYTAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/vytal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    .page{display:none}.page.active{display:block;animation:fadeIn .25s ease}
-    /* Modal for exercise video/phases */
-    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
-    .modal-overlay.open{display:flex}
-    .modal-box{background:var(--bg-secondary);border-radius:var(--radius-xl);max-width:440px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-elevated);padding:20px}
-    .modal-close{float:right;width:32px;height:32px;border-radius:50%;background:var(--bg-warm);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--text-secondary)}
-    .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;text-transform:uppercase;margin:8px 0 16px}
-    .phase-item{padding:10px 0;border-bottom:1px solid var(--border-subtle)}
-    .phase-item:last-child{border:none}
-    .phase-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-    .phase-label.start{color:var(--accent-sand)}.phase-label.ecc{color:var(--pull-sage)}.phase-label.con{color:var(--push-terracotta)}
-    .phase-text{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
-    .error-list{list-style:none;margin:12px 0 0}
-    .error-list li{font-size:.75rem;color:var(--text-secondary);padding:6px 0 6px 16px;position:relative;border-bottom:1px solid var(--border-subtle)}
-    .error-list li:last-child{border:none}
-    .error-list li::before{content:'';position:absolute;left:0;top:12px;width:6px;height:6px;border-radius:50%;background:var(--danger)}
-    /* Grocery list */
-    .grocery-section{margin-bottom:16px}
-    .grocery-title{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border-subtle)}
-    .grocery-item{font-size:.78rem;color:var(--text-secondary);padding:4px 0}
-    /* Day selector tabs */
-    .day-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .day-tabs::-webkit-scrollbar{display:none}
-    .day-tab{flex-shrink:0;padding:8px 14px;border-radius:var(--radius-sm);background:var(--bg-warm);font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);cursor:pointer;transition:all var(--transition);white-space:nowrap}
-    .day-tab.active{background:var(--text-primary);color:var(--bg-primary)}
-    .day-tab.training{border:1.5px solid var(--push-terracotta-medium)}
-    .day-tab.rest{border:1.5px solid var(--border-subtle)}
+/* ============================================
+   VYTAL v2 — Tech-Sporty + ADHD Gamification
+   ============================================ */
+
+:root {
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F5F5F2;
+  --bg-warm: #F7F4F0;
+  --bg-input: #F2F0EC;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6B6B;
+  --text-muted: #A0A0A0;
+  --push-terracotta: #C4613A;
+  --push-terracotta-soft: rgba(196, 97, 58, 0.08);
+  --push-terracotta-medium: rgba(196, 97, 58, 0.15);
+  --pull-sage: #5B8C6F;
+  --pull-sage-soft: rgba(91, 140, 111, 0.08);
+  --pull-sage-medium: rgba(91, 140, 111, 0.15);
+  --accent-sand: #C4A86B;
+  --accent-sand-soft: rgba(196, 168, 107, 0.08);
+  --accent-sand-medium: rgba(196, 168, 107, 0.15);
+  --rest-stone: #B8B0A4;
+  --success: #5B8C6F;
+  --danger: #C4613A;
+  --xp-gold: #D4A843;
+  --xp-gold-soft: rgba(212, 168, 67, 0.12);
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-medium: rgba(0,0,0,0.1);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --shadow-elevated: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-hero: 0 4px 16px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+  --shadow-glow-terra: 0 0 20px rgba(196, 97, 58, 0.25);
+  --shadow-glow-sage: 0 0 20px rgba(91, 140, 111, 0.25);
+  --shadow-glow-gold: 0 0 20px rgba(212, 168, 67, 0.35);
+  --nav-height: 68px;
+  --transition: 0.2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--nav-height) + 20px);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Tech grid pattern overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > *:not(.bottom-nav) { position: relative; z-index: 1; }
+
+h1, h2, h3, h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; -webkit-tap-highlight-color: transparent; }
+img, svg { display: block; max-width: 100%; }
+
+.container { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 20px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* --- Top Header + XP Bar --- */
+.top-header {
+  padding: 16px 0 0;
+  text-align: center;
+}
+
+.top-header .logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.top-header .logo span { color: var(--push-terracotta); }
+
+.top-header .date-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  text-transform: capitalize;
+  font-weight: 400;
+}
+
+/* XP Bar in header */
+.xp-header {
+  margin: 10px 20px 0;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.xp-level-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.xp-level-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--xp-gold);
+}
+
+.xp-amount {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.xp-bar-outer {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--xp-gold), #E8C860);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 0 8px rgba(212, 168, 67, 0.4);
+}
+
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: xpShimmer 2s ease-in-out infinite;
+}
+
+@keyframes xpShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Streak display */
+.streak-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--push-terracotta);
+}
+
+.streak-fire { font-size: 1rem; }
+.streak-fire.medium { font-size: 1.3rem; }
+.streak-fire.big { font-size: 1.6rem; animation: fireGlow 1s ease-in-out infinite alternate; }
+
+@keyframes fireGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.3); }
+}
+
+/* --- Hero Card --- */
+.hero-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  margin: 14px 0 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  color: #FFFFFF;
+  box-shadow: var(--shadow-hero);
+}
+
+.hero-card:active { transform: scale(0.97); }
+
+.hero-card.push { background: linear-gradient(135deg, #C4613A 0%, #A8492A 50%, #8C3820 100%); }
+.hero-card.pull { background: linear-gradient(135deg, #5B8C6F 0%, #4A7A5E 50%, #3D6A50 100%); }
+.hero-card.rest { background: linear-gradient(135deg, #B8B0A4 0%, #A09888 50%, #8A8274 100%); }
+
+/* Tech pattern on hero */
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.hero-card .hero-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.85;
+}
+
+.hero-card .hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 6px 0 8px;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+}
+
+.hero-card .hero-subtitle {
+  font-size: 0.82rem;
+  opacity: 0.75;
+  font-weight: 400;
+}
+
+.hero-card .hero-arrow {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease;
+}
+
+.hero-card:active .hero-arrow { transform: translateY(-50%) scale(0.9); }
+
+/* --- Week Progress --- */
+.week-progress { margin: 0 0 20px; }
+
+.week-progress h3 {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.week-days { display: flex; gap: 8px; justify-content: space-between; }
+
+.week-day {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px 8px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1.5px solid transparent;
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease;
+}
+
+.week-day .day-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.week-day .day-type { width: 6px; height: 6px; border-radius: 50%; margin: 6px auto 0; }
+.week-day.push .day-type { background: var(--push-terracotta); }
+.week-day.pull .day-type { background: var(--pull-sage); }
+.week-day.rest .day-type { background: var(--rest-stone); opacity: 0.4; }
+.week-day.push .day-name { color: var(--push-terracotta); }
+.week-day.pull .day-name { color: var(--pull-sage); }
+.week-day.rest { opacity: 0.5; }
+.week-day.today { border-color: var(--text-primary); opacity: 1; }
+.week-day.completed .day-type { width: 8px; height: 8px; }
+.week-day.completed::after {
+  content: '';
+  display: block;
+  width: 10px; height: 10px;
+  margin: 4px auto 0;
+  background: var(--success);
+  border-radius: 50%;
+  animation: popIn 0.3s ease;
+}
+
+/* --- Quick Stats --- */
+.quick-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.stat-card .stat-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.stat-card.terracotta .stat-value { color: var(--push-terracotta); }
+.stat-card.terracotta { border-color: var(--push-terracotta-medium); }
+.stat-card.sage .stat-value { color: var(--pull-sage); }
+.stat-card.sage { border-color: var(--pull-sage-medium); }
+.stat-card.sand .stat-value { color: var(--accent-sand); }
+.stat-card.sand { border-color: var(--accent-sand-medium); }
+
+/* --- Section Cards --- */
+.section-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid transparent;
+}
+
+.section-card:active { transform: scale(0.97); background: var(--bg-card-hover); }
+
+.section-card .card-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-card .card-icon.terracotta { background: linear-gradient(135deg, var(--push-terracotta-soft), var(--push-terracotta-medium)); }
+.section-card .card-icon.sage { background: linear-gradient(135deg, var(--pull-sage-soft), var(--pull-sage-medium)); }
+.section-card .card-icon.sand { background: linear-gradient(135deg, var(--accent-sand-soft), var(--accent-sand-medium)); }
+
+.section-card .card-icon svg { width: 22px; height: 22px; }
+.section-card .card-content { flex: 1; }
+
+.section-card .card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.section-card .card-desc { font-size: 0.72rem; color: var(--text-secondary); margin-top: 3px; }
+.section-card .card-chevron { color: var(--text-muted); font-size: 1.2rem; font-weight: 300; }
+
+/* --- Progress Bar --- */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar .progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.progress-bar .progress-fill.terracotta { background: var(--push-terracotta); }
+.progress-bar .progress-fill.sage { background: var(--pull-sage); }
+.progress-bar .progress-fill.sand { background: var(--accent-sand); }
+
+/* --- Bottom Navigation --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  background: rgba(255,255,255,0.94);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  position: relative;
+  min-width: 60px;
+}
+
+.nav-item:active { transform: scale(0.9); }
+
+.nav-item .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.nav-item .nav-icon svg { width: 22px; height: 22px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: all 0.15s ease; }
+
+.nav-item .nav-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.nav-item.active .nav-label { color: var(--text-primary); }
+.nav-item.active .nav-icon svg { stroke: var(--text-primary); stroke-width: 2.2; }
+.nav-item.active.terracotta .nav-icon svg { stroke: var(--push-terracotta); }
+.nav-item.active.sage .nav-icon svg { stroke: var(--pull-sage); }
+.nav-item.active.sand .nav-icon svg { stroke: var(--accent-sand); }
+.nav-item.active.terracotta .nav-label { color: var(--push-terracotta); }
+.nav-item.active.sage .nav-label { color: var(--pull-sage); }
+.nav-item.active.sand .nav-label { color: var(--accent-sand); }
+
+.nav-item .sync-badge {
+  position: absolute; top: 4px; right: 8px;
+  width: 7px; height: 7px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 1.5px solid #FFFFFF;
+  display: none;
+}
+.nav-item .sync-badge.visible { display: block; }
+
+/* --- Exercise Card --- */
+.exercise-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.exercise-card.ex-completed {
+  padding: 14px 20px;
+  border-color: var(--success);
+  box-shadow: var(--shadow-card), var(--shadow-glow-sage);
+}
+
+.exercise-card.ex-completed .exercise-body { display: none; }
+
+.exercise-card.ex-completed .exercise-header { margin-bottom: 0; }
+
+.exercise-card .completed-badge {
+  display: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--success);
+  background: var(--pull-sage-soft);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+.exercise-card.ex-completed .completed-badge { display: inline-block; animation: popIn 0.3s ease; }
+
+.exercise-card .exercise-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.exercise-card .exercise-number {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.exercise-card.push .exercise-number { background: var(--push-terracotta-medium); color: var(--push-terracotta); }
+.exercise-card.pull .exercise-number { background: var(--pull-sage-medium); color: var(--pull-sage); }
+
+.exercise-card .exercise-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.exercise-card .exercise-meta { font-size: 0.68rem; color: var(--text-secondary); margin-top: 1px; }
+
+.exercise-card .svg-container {
+  background: linear-gradient(135deg, var(--bg-warm), var(--bg-input));
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+}
+
+.exercise-card .svg-container svg { width: 100%; max-width: 180px; height: auto; }
+
+.exercise-card .bio-tip {
+  background: var(--bg-warm);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  border-left: 3px solid;
+}
+
+.exercise-card.push .bio-tip { border-color: var(--push-terracotta); }
+.exercise-card.pull .bio-tip { border-color: var(--pull-sage); }
+.bio-tip strong { color: var(--text-primary); font-weight: 600; }
+
+/* Series Tracker - Updated for inline reps */
+.series-tracker {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.series-btn {
+  flex: 1;
+  padding: 12px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-warm);
+  border: 2px solid transparent;
+  text-align: center;
+  transition: all 0.15s ease;
+  min-height: 64px;
+  position: relative;
+}
+
+.series-btn:active { transform: scale(0.95); }
+
+.series-btn .series-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.series-btn .series-reps {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-top: 2px;
+  color: var(--text-primary);
+}
+
+.series-btn.completed.push {
+  border-color: var(--push-terracotta);
+  background: var(--push-terracotta-soft);
+  animation: setComplete 0.3s ease;
+}
+.series-btn.completed.push .series-label { color: var(--push-terracotta); }
+
+.series-btn.completed.pull {
+  border-color: var(--pull-sage);
+  background: var(--pull-sage-soft);
+  animation: setComplete 0.3s ease;
+}
+.series-btn.completed.pull .series-label { color: var(--pull-sage); }
+
+@keyframes setComplete {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Rep selector (inline, no prompt) */
+.rep-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.rep-preset {
+  width: 28px; height: 22px;
+  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.rep-preset:active { transform: scale(0.9); }
+
+/* Weight Input */
+.weight-row { display: flex; align-items: center; gap: 8px; }
+
+.weight-row .weight-input {
+  width: 76px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-warm);
+  border: 1.5px solid transparent;
+  color: var(--text-primary);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.weight-row .weight-input:focus { outline: none; border-color: var(--accent-sand); }
+.weight-row .weight-unit { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+.weight-row .weight-suggestion { font-size: 0.68rem; color: var(--push-terracotta); margin-left: auto; font-weight: 600; }
+
+/* Rest Timer */
+.rest-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--bg-warm), var(--bg-input));
+  border-radius: var(--radius-md);
+  margin-top: 14px;
+}
+
+.rest-timer .timer-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  min-width: 72px;
+  text-align: center;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+.rest-timer.running .timer-display { animation: timerPulse 1s ease-in-out infinite; }
+.rest-timer.done .timer-display { color: var(--danger); animation: timerFlash 0.5s ease infinite; }
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes timerFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.rest-timer .timer-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+}
+
+.rest-timer .timer-btn:active { transform: scale(0.88); }
+.rest-timer .timer-btn.start { background: linear-gradient(135deg, var(--push-terracotta), #A8492A); color: #FFFFFF; box-shadow: 0 2px 8px rgba(196, 97, 58, 0.3); }
+.rest-timer .timer-btn.reset { background: var(--bg-input); color: var(--text-secondary); }
+
+/* Day Progress - Prominent with glow */
+.day-progress { margin-bottom: 20px; }
+
+.day-progress .dp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.day-progress .dp-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.day-progress .dp-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.day-progress .dp-percentage {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+.day-progress .progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 0;
+}
+
+.day-progress .progress-bar .progress-fill {
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.day-progress .progress-bar .progress-fill.terracotta { box-shadow: 0 0 12px rgba(196, 97, 58, 0.35); }
+.day-progress .progress-bar .progress-fill.sage { box-shadow: 0 0 12px rgba(91, 140, 111, 0.35); }
+
+.day-progress .progress-bar .progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: xpShimmer 2.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* --- Nutrition --- */
+.meal-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.meal-card .meal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+.meal-card .meal-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.meal-card .meal-kcal { font-size: 0.72rem; color: var(--accent-sand); font-weight: 700; }
+.meal-card .meal-items { list-style: none; }
+
+.meal-card .meal-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.78rem;
+}
+
+.meal-card .meal-item:last-child { border-bottom: none; }
+.meal-card .meal-item .item-name { color: var(--text-secondary); }
+.meal-card .meal-item .item-amount { color: var(--text-primary); font-weight: 500; }
+
+.meal-macros {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.macro-progress { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.macro-item { text-align: center; }
+
+.macro-ring { width: 64px; height: 64px; margin: 0 auto 8px; position: relative; }
+.macro-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.macro-ring circle { fill: none; stroke-width: 4.5; }
+.macro-ring .ring-bg { stroke: var(--bg-input); }
+.macro-ring .ring-fill { stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+
+.macro-ring .ring-value {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.macro-label {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Water Tracker */
+.water-tracker {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.water-tracker .water-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+.water-tracker .water-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.water-tracker .water-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pull-sage);
+}
+
+.water-glasses { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+
+.water-glass {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-warm);
+  border: 1.5px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.water-glass:active { transform: scale(0.9); }
+.water-glass svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; }
+.water-glass.filled { background: var(--pull-sage-soft); border-color: var(--pull-sage); animation: popIn 0.2s ease; }
+.water-glass.filled svg { stroke: var(--pull-sage); fill: var(--pull-sage-soft); }
+
+/* Supplement Tracker */
+.supplement-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-card);
+}
+
+.supplement-card:active { transform: scale(0.97); }
+
+.supplement-card .supp-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.supplement-card .supp-icon svg { width: 24px; height: 24px; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.supplement-card .supp-info { flex: 1; }
+
+.supplement-card .supp-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.supplement-card .supp-dose { font-size: 0.72rem; color: var(--text-secondary); margin-top: 3px; }
+
+.supplement-card .supp-check {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--border-medium);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+  color: transparent;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.supplement-card .supp-check.done {
+  border-color: var(--success);
+  background: var(--pull-sage-soft);
+  color: var(--success);
+  animation: popIn 0.3s ease;
+}
+
+/* --- Page Header --- */
+.page-header { display: flex; align-items: center; gap: 14px; margin: 10px 0 24px; }
+
+.page-header .back-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg-warm);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.page-header .back-btn:active { transform: scale(0.9); }
+.page-header .back-btn svg { width: 18px; height: 18px; stroke: var(--text-secondary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header h2 { font-size: 1.15rem; font-weight: 800; }
+.page-header h2.push { color: var(--push-terracotta); }
+.page-header h2.pull { color: var(--pull-sage); }
+.page-header h2.sand { color: var(--accent-sand); }
+
+/* Day tabs */
+.day-tabs {
+  display: flex; gap: 6px; overflow-x: auto; padding: 0 0 12px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+
+.day-tab {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-warm);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.day-tab:active { transform: scale(0.95); }
+.day-tab.active { background: var(--text-primary); color: var(--bg-primary); }
+.day-tab.training { border: 1.5px solid var(--push-terracotta-medium); }
+.day-tab.rest { border: 1.5px solid var(--border-subtle); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+  padding: 16px; backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  max-width: 440px; width: 100%;
+  max-height: 85vh; overflow-y: auto;
+  box-shadow: var(--shadow-elevated);
+  padding: 20px;
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-close {
+  float: right;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg-warm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: .9rem;
+  color: var(--text-secondary);
+}
+
+.modal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem; font-weight: 800;
+  text-transform: uppercase;
+  margin: 8px 0 16px;
+}
+
+.phase-item { padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.phase-item:last-child { border: none; }
+
+.phase-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 4px;
+}
+
+.phase-label.start { color: var(--accent-sand); }
+.phase-label.ecc { color: var(--pull-sage); }
+.phase-label.con { color: var(--push-terracotta); }
+.phase-text { font-size: .78rem; color: var(--text-secondary); line-height: 1.5; }
+
+.error-list { list-style: none; margin: 12px 0 0; }
+.error-list li { font-size: .75rem; color: var(--text-secondary); padding: 6px 0 6px 16px; position: relative; border-bottom: 1px solid var(--border-subtle); }
+.error-list li:last-child { border: none; }
+.error-list li::before { content: ''; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+
+/* Grocery */
+.grocery-section { margin-bottom: 16px; }
+.grocery-title { font-family: 'Barlow Condensed', sans-serif; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
+.grocery-item { font-size: .78rem; color: var(--text-secondary); padding: 4px 0; }
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.fade-in { animation: fadeIn 0.25s ease forwards; }
+.pulse { animation: pulse 2s ease-in-out infinite; }
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.25s ease; }
+
+/* --- Confetti overlay --- */
+.confetti-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 3000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.confetti-overlay .day-complete-msg {
+  background: rgba(255,255,255,0.96);
+  border-radius: var(--radius-xl);
+  padding: 32px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-hero);
+  animation: bounceIn 0.5s ease;
+  pointer-events: auto;
+}
+
+.confetti-overlay .day-complete-msg h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.confetti-overlay .day-complete-msg .xp-earned {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--xp-gold);
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* XP popup notification */
+.xp-popup {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2500;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--xp-gold);
+  background: rgba(255,255,255,0.95);
+  padding: 8px 20px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-glow-gold);
+  animation: xpPopup 1.5s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes xpPopup {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.8); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.05); }
+  80% { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(0.9); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 2px; }
+
+@media (min-width: 480px) { .container { padding: 0 28px; } }
+@media (min-width: 768px) { .container { max-width: 520px; } }
   </style>
 </head>
 <body>
@@ -49,6 +1208,19 @@
     <div class="container">
       <div class="logo">VY<span>TAL</span></div>
       <div class="date-label" id="dateLabel"></div>
+      <div class="xp-header">
+        <div class="xp-level-row">
+          <div class="xp-level-label" id="xpLevelLabel">Novato</div>
+          <div class="xp-amount" id="xpAmountLabel">0 / 500 XP</div>
+        </div>
+        <div class="xp-bar-outer">
+          <div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div>
+        </div>
+        <div class="streak-display" id="streakDisplay" style="display:none">
+          <span class="streak-fire" id="streakFire"></span>
+          <span id="streakText"></span>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -96,7 +1268,10 @@
         <h2 id="entrenoTitle" class="push">Entrenamiento</h2>
       </div>
       <div class="day-progress" id="entrenoProgress">
-        <div class="dp-row"><span>Progreso del dia</span><span id="dayProgressLabel">0/6</span></div>
+        <div class="dp-row">
+          <span class="dp-label">Progreso del dia</span>
+          <div><span class="dp-count" id="dayProgressLabel">0/6</span><span class="dp-percentage" id="dayProgressPct">0%</span></div>
+        </div>
         <div class="progress-bar"><div class="progress-fill terracotta" id="dayProgressBar" style="width:0%"></div></div>
       </div>
       <div id="exerciseList"></div>
@@ -162,40 +1337,507 @@
     </button>
   </nav>
 
-  <!-- Supabase UMD -->
+  <!-- Supabase UMD (optional, gracefully degrades) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/svg-exercises.js"></script>
 
   <script>
+  /* ============================================
+     VYTAL — Supabase Client + Offline Queue
+     ============================================ */
+  (function() {
+    'use strict';
+
+    var SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+    var SUPABASE_KEY = 'YOUR_ANON_KEY';
+    var client = null;
+    var isOnline = navigator.onLine;
+
+    function init() {
+      if (window.supabase && window.supabase.createClient) {
+        client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    }
+
+    var QUEUE_KEY = 'vytal_sync_queue';
+
+    function getQueue() {
+      try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; }
+      catch (e) { return []; }
+    }
+
+    function saveQueue(queue) {
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+      updateSyncBadge();
+    }
+
+    function addToQueue(table, data) {
+      var queue = getQueue();
+      queue.push({ id: Date.now() + '_' + Math.random().toString(36).substr(2, 6), table: table, data: data, timestamp: new Date().toISOString() });
+      saveQueue(queue);
+    }
+
+    function updateSyncBadge() {
+      var queue = getQueue();
+      var badges = document.querySelectorAll('.sync-badge');
+      for (var i = 0; i < badges.length; i++) {
+        if (queue.length > 0) badges[i].classList.add('visible');
+        else badges[i].classList.remove('visible');
+      }
+    }
+
+    function flushQueue() {
+      if (!client || !isOnline) return Promise.resolve();
+      var queue = getQueue();
+      if (queue.length === 0) return Promise.resolve();
+      var remaining = [];
+      var promises = [];
+      for (var i = 0; i < queue.length; i++) {
+        (function(item) {
+          var p = client.from(item.table).insert(item.data)
+            .then(function(res) { if (res.error) remaining.push(item); })
+            .catch(function() { remaining.push(item); });
+          promises.push(p);
+        })(queue[i]);
+      }
+      return Promise.all(promises).then(function() { saveQueue(remaining); });
+    }
+
+    function insert(table, data) {
+      if (!client || !isOnline) { addToQueue(table, data); return Promise.resolve({ data: data, offline: true }); }
+      return client.from(table).insert(data).select()
+        .then(function(res) {
+          if (res.error) { addToQueue(table, data); return { data: data, offline: true, error: res.error }; }
+          return { data: res.data, offline: false };
+        })
+        .catch(function() { addToQueue(table, data); return { data: data, offline: true }; });
+    }
+
+    function select(table, filters) {
+      if (!client || !isOnline) return Promise.resolve({ data: [], offline: true });
+      var query = client.from(table).select('*');
+      if (filters) { Object.keys(filters).forEach(function(key) { query = query.eq(key, filters[key]); }); }
+      return query.order('created_at', { ascending: false }).limit(100)
+        .then(function(res) { return { data: res.data || [], error: res.error }; })
+        .catch(function() { return { data: [], offline: true }; });
+    }
+
+    function update(table, id, data) {
+      if (!client || !isOnline) return Promise.resolve({ offline: true });
+      return client.from(table).update(data).eq('id', id)
+        .then(function(res) { return { data: res.data, error: res.error }; });
+    }
+
+    window.addEventListener('online', function() { isOnline = true; flushQueue(); });
+    window.addEventListener('offline', function() { isOnline = false; });
+
+    function localGet(key, fallback) {
+      try { var v = localStorage.getItem('vytal_' + key); return v ? JSON.parse(v) : fallback; }
+      catch (e) { return fallback; }
+    }
+
+    function localSet(key, value) {
+      try { localStorage.setItem('vytal_' + key, JSON.stringify(value)); } catch (e) {}
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { init(); updateSyncBadge(); flushQueue(); });
+    } else { init(); updateSyncBadge(); flushQueue(); }
+
+    window.VYTAL_DB = {
+      insert: insert, select: select, update: update, flushQueue: flushQueue,
+      getQueueLength: function() { return getQueue().length; },
+      localGet: localGet, localSet: localSet, isOnline: function() { return isOnline; }
+    };
+  })();
+  </script>
+
+  <script>
+  /* ============================================
+     VYTAL — SVG Exercise Animations
+     ============================================ */
+  (function() {
+    'use strict';
+
+    var SKIN = '#C4BDB3';
+    var SKIN_LIGHT = '#D4CFC7';
+    var BONE = '#A09888';
+    var BENCH = '#D4CFC7';
+    var BENCH_DARK = '#B8B0A4';
+    var FLOOR = '#E8E3DC';
+    var TERRA = 'var(--push-terracotta)';
+    var TERRA_SOFT = 'var(--push-terracotta-medium)';
+    var SAGE = 'var(--pull-sage)';
+    var SAGE_SOFT = 'var(--pull-sage-medium)';
+
+    function anim(content, dy, dur) {
+      return '<g>' + content +
+        '<animateTransform attributeName="transform" type="translate" ' +
+        'values="0,0;0,' + dy + ';0,0" dur="' + (dur || 3) + 's" ' +
+        'calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" ' +
+        'repeatCount="indefinite"/></g>';
+    }
+
+    function limb(x1, y1, x2, y2, w, color) {
+      return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (color || SKIN) + '" stroke-width="' + (w || 2.5) + '" stroke-linecap="round"/>';
+    }
+
+    function muscle(cx, cy, rx, ry, color, opacity) {
+      return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + color + '" opacity="' + (opacity || 0.25) + '"/>';
+    }
+
+    function barbell(x, y, w, plateW, plateH, color) {
+      var bar = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="3" rx="1.5" fill="' + color + '"/>';
+      var lp = '<rect x="' + (x - plateW + 2) + '" y="' + (y - (plateH - 3) / 2) + '" width="' + plateW + '" height="' + plateH + '" rx="2.5" fill="' + color + '" opacity="0.55"/>';
+      var rp = '<rect x="' + (x + w - 2) + '" y="' + (y - (plateH - 3) / 2) + '" width="' + plateW + '" height="' + plateH + '" rx="2.5" fill="' + color + '" opacity="0.55"/>';
+      return bar + lp + rp;
+    }
+
+    function dumbbell(cx, cy, len, color) {
+      var half = len / 2;
+      var bar = '<rect x="' + (cx - half) + '" y="' + (cy - 1.5) + '" width="' + len + '" height="3" rx="1.5" fill="' + color + '"/>';
+      var lp = '<circle cx="' + (cx - half) + '" cy="' + cy + '" r="4.5" fill="' + color + '" opacity="0.5"/>';
+      var rp = '<circle cx="' + (cx + half) + '" cy="' + cy + '" r="4.5" fill="' + color + '" opacity="0.5"/>';
+      return bar + lp + rp;
+    }
+
+    var exercises = {};
+
+    exercises.press_banca = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" rx="0" fill="' + FLOOR + '"/>';
+      svg += '<rect x="38" y="80" width="124" height="7" rx="3.5" fill="' + BENCH + '"/>';
+      svg += '<rect x="55" y="87" width="6" height="19" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="139" y="87" width="6" height="19" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="28" y="26" width="4" height="64" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="168" y="26" width="4" height="64" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="26" y="26" width="8" height="4" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="166" y="26" width="8" height="4" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<ellipse cx="100" cy="75" rx="34" ry="5.5" fill="' + SKIN_LIGHT + '"/>';
+      svg += '<circle cx="60" cy="71" r="7.5" fill="' + SKIN + '"/>';
+      svg += limb(125, 78, 140, 95, 2.5, SKIN);
+      svg += limb(140, 95, 138, 106, 2.5, SKIN);
+      svg += limb(120, 78, 132, 95, 2.5, SKIN);
+      svg += limb(132, 95, 130, 106, 2.5, SKIN);
+      svg += muscle(90, 72, 18, 6, TERRA, 0.15);
+      var moving = '';
+      moving += barbell(18, 43, 164, 16, 16, TERRA);
+      moving += limb(76, 73, 68, 45, 2.8, SKIN);
+      moving += limb(124, 73, 132, 45, 2.8, SKIN);
+      moving += '<circle cx="68" cy="45" r="3" fill="' + TERRA + '" opacity="0.3"/>';
+      moving += '<circle cx="132" cy="45" r="3" fill="' + TERRA + '" opacity="0.3"/>';
+      svg += anim(moving, 22, 3);
+      return svg;
+    };
+
+    exercises.press_inclinado = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<path d="M44 98 L74 48 L80 48 L50 98 Z" fill="' + BENCH + '"/>';
+      svg += '<rect x="50" y="95" width="94" height="6" rx="3" fill="' + BENCH + '"/>';
+      svg += '<rect x="52" y="101" width="5" height="5" rx="1" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="137" y="101" width="5" height="5" rx="1" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="70" cy="44" r="7" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="86" cy="68" rx="8" ry="22" transform="rotate(-20 86 68)" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(80, 58, 10, 6, TERRA, 0.2);
+      svg += limb(98, 82, 118, 96, 2.5, SKIN);
+      svg += limb(118, 96, 120, 106, 2.5, SKIN);
+      svg += limb(95, 82, 112, 96, 2.5, SKIN);
+      svg += limb(112, 96, 114, 106, 2.5, SKIN);
+      var moving = '';
+      moving += dumbbell(60, 48, 18, TERRA);
+      moving += dumbbell(116, 48, 18, TERRA);
+      moving += limb(78, 60, 62, 48, 2.5, SKIN);
+      moving += limb(94, 60, 114, 48, 2.5, SKIN);
+      svg += anim(moving, 20, 3);
+      return svg;
+    };
+
+    exercises.pec_deck = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<rect x="90" y="20" width="20" height="86" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="85" y="20" width="30" height="6" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="82" y="80" width="36" height="6" rx="3" fill="' + BENCH + '"/>';
+      svg += '<rect x="95" y="86" width="10" height="20" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="100" cy="52" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="100" cy="72" rx="12" ry="12" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(100, 68, 10, 7, TERRA, 0.2);
+      svg += limb(92, 83, 82, 100, 2.5, SKIN);
+      svg += limb(82, 100, 84, 106, 2.5, SKIN);
+      svg += limb(108, 83, 118, 100, 2.5, SKIN);
+      svg += limb(118, 100, 116, 106, 2.5, SKIN);
+      var moving = '';
+      moving += '<rect x="38" y="56" width="8" height="20" rx="4" fill="' + BENCH_DARK + '"/>';
+      moving += limb(88, 68, 48, 66, 2.8, SKIN);
+      moving += '<rect x="154" y="56" width="8" height="20" rx="4" fill="' + BENCH_DARK + '"/>';
+      moving += limb(112, 68, 152, 66, 2.8, SKIN);
+      moving += '<path d="M42 56 Q42 30 90 24" stroke="' + BENCH_DARK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      moving += '<path d="M158 56 Q158 30 110 24" stroke="' + BENCH_DARK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="30,0;0,0;30,0" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.press_militar = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<circle cx="100" cy="32" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="100" cy="58" rx="14" ry="18" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(84, 44, 6, 5, TERRA, 0.25);
+      svg += muscle(116, 44, 6, 5, TERRA, 0.25);
+      svg += limb(93, 76, 88, 96, 2.8, SKIN);
+      svg += limb(88, 96, 88, 106, 2.8, SKIN);
+      svg += limb(107, 76, 112, 96, 2.8, SKIN);
+      svg += limb(112, 96, 112, 106, 2.8, SKIN);
+      var moving = '';
+      moving += barbell(22, 38, 156, 14, 14, TERRA);
+      moving += limb(86, 48, 66, 40, 2.8, SKIN);
+      moving += limb(114, 48, 134, 40, 2.8, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,24;0,0;0,24" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.elevaciones_laterales = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<circle cx="100" cy="30" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="100" cy="56" rx="13" ry="18" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(82, 42, 7, 5, TERRA, 0.3);
+      svg += muscle(118, 42, 7, 5, TERRA, 0.3);
+      svg += limb(93, 74, 90, 96, 2.8, SKIN);
+      svg += limb(90, 96, 90, 106, 2.8, SKIN);
+      svg += limb(107, 74, 110, 96, 2.8, SKIN);
+      svg += limb(110, 96, 110, 106, 2.8, SKIN);
+      var moving = '';
+      moving += dumbbell(50, 68, 14, TERRA);
+      moving += dumbbell(150, 68, 14, TERRA);
+      moving += limb(86, 46, 52, 68, 2.5, SKIN);
+      moving += limb(114, 46, 148, 68, 2.5, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="18,16;0,0;18,16" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.extension_triceps = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<rect x="92" y="8" width="16" height="98" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="86" y="8" width="28" height="6" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="68" cy="34" r="7.5" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="72" cy="58" rx="10" ry="17" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(80, 52, 5, 8, TERRA, 0.3);
+      svg += limb(68, 75, 62, 96, 2.8, SKIN);
+      svg += limb(62, 96, 64, 106, 2.8, SKIN);
+      svg += limb(76, 75, 78, 96, 2.8, SKIN);
+      svg += limb(78, 96, 78, 106, 2.8, SKIN);
+      svg += '<line x1="98" y1="14" x2="98" y2="28" stroke="' + BONE + '" stroke-width="1.5"/>';
+      var moving = '';
+      svg += limb(80, 44, 82, 58, 2.5, SKIN);
+      moving += '<line x1="98" y1="28" x2="84" y2="56" stroke="' + BONE + '" stroke-width="1.5"/>';
+      moving += limb(82, 58, 84, 56, 2.8, SKIN);
+      moving += '<rect x="78" y="54" width="12" height="4" rx="2" fill="' + TERRA + '"/>';
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,0;0,22;0,0" dur="2.5s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.jalon_pecho = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<rect x="90" y="6" width="20" height="100" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="82" y="6" width="36" height="6" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="78" y="82" width="44" height="5" rx="2.5" fill="' + BENCH + '"/>';
+      svg += '<rect x="82" y="74" width="36" height="4" rx="2" fill="' + BENCH + '"/>';
+      svg += '<rect x="95" y="87" width="10" height="19" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="100" cy="44" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="100" cy="64" rx="14" ry="14" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(86, 62, 8, 10, SAGE, 0.2);
+      svg += muscle(114, 62, 8, 10, SAGE, 0.2);
+      svg += limb(90, 82, 82, 98, 2.5, SKIN);
+      svg += limb(82, 98, 84, 106, 2.5, SKIN);
+      svg += limb(110, 82, 118, 98, 2.5, SKIN);
+      svg += limb(118, 98, 116, 106, 2.5, SKIN);
+      var moving = '';
+      moving += '<rect x="30" y="16" width="140" height="3" rx="1.5" fill="' + SAGE + '"/>';
+      moving += '<rect x="28" y="12" width="6" height="10" rx="2" fill="' + SAGE + '" opacity="0.6"/>';
+      moving += '<rect x="166" y="12" width="6" height="10" rx="2" fill="' + SAGE + '" opacity="0.6"/>';
+      moving += '<line x1="98" y1="12" x2="50" y2="17" stroke="' + BONE + '" stroke-width="1.5"/>';
+      moving += '<line x1="102" y1="12" x2="150" y2="17" stroke="' + BONE + '" stroke-width="1.5"/>';
+      moving += limb(86, 54, 54, 18, 2.8, SKIN);
+      moving += limb(114, 54, 146, 18, 2.8, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,0;0,36;0,0" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.remo_barra = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<circle cx="56" cy="38" r="7.5" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="80" cy="52" rx="22" ry="8" transform="rotate(-15 80 52)" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(82, 48, 16, 7, SAGE, 0.2);
+      svg += limb(96, 58, 104, 84, 3, SKIN);
+      svg += limb(104, 84, 100, 106, 2.8, SKIN);
+      svg += limb(92, 58, 88, 84, 3, SKIN);
+      svg += limb(88, 84, 86, 106, 2.8, SKIN);
+      var moving = '';
+      moving += barbell(28, 72, 120, 12, 12, SAGE);
+      moving += limb(72, 56, 60, 73, 2.5, SKIN);
+      moving += limb(90, 56, 106, 73, 2.5, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,8;0,-14;0,8" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.remo_mancuerna = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<rect x="30" y="78" width="80" height="6" rx="3" fill="' + BENCH + '"/>';
+      svg += '<rect x="40" y="84" width="5" height="22" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="95" y="84" width="5" height="22" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="110" cy="42" r="7" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="92" cy="56" rx="22" ry="8" transform="rotate(-5 92 56)" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(100, 52, 12, 6, SAGE, 0.25);
+      svg += limb(72, 60, 62, 78, 2.5, SKIN);
+      svg += '<circle cx="62" cy="78" r="3" fill="' + SKIN + '"/>';
+      svg += limb(78, 62, 70, 78, 2.5, SKIN);
+      svg += limb(70, 78, 68, 82, 2, SKIN);
+      svg += limb(100, 62, 114, 86, 2.8, SKIN);
+      svg += limb(114, 86, 112, 106, 2.8, SKIN);
+      var moving = '';
+      moving += dumbbell(130, 72, 16, SAGE);
+      moving += limb(106, 56, 128, 72, 2.8, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,8;0,-16;0,8" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.face_pulls = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<rect x="160" y="10" width="16" height="96" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<rect x="156" y="10" width="24" height="6" rx="3" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="80" cy="32" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="80" cy="56" rx="13" ry="18" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(68, 42, 5, 5, SAGE, 0.3);
+      svg += muscle(92, 42, 5, 5, SAGE, 0.3);
+      svg += limb(74, 74, 70, 96, 2.8, SKIN);
+      svg += limb(70, 96, 72, 106, 2.8, SKIN);
+      svg += limb(86, 74, 90, 96, 2.8, SKIN);
+      svg += limb(90, 96, 88, 106, 2.8, SKIN);
+      var moving = '';
+      moving += '<line x1="166" y1="38" x2="110" y2="40" stroke="' + BONE + '" stroke-width="2"/>';
+      moving += limb(88, 44, 110, 38, 2.5, SKIN);
+      moving += limb(72, 44, 110, 42, 2.5, SKIN);
+      moving += '<circle cx="110" cy="38" r="3" fill="' + SAGE + '"/>';
+      moving += '<circle cx="110" cy="42" r="3" fill="' + SAGE + '"/>';
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="28,4;0,0;28,4" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.curl_predicador = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<path d="M70 50 L110 80 L110 84 L70 54 Z" fill="' + BENCH + '"/>';
+      svg += '<rect x="108" y="80" width="30" height="5" rx="2.5" fill="' + BENCH + '"/>';
+      svg += '<rect x="118" y="85" width="8" height="21" rx="2" fill="' + BENCH_DARK + '"/>';
+      svg += '<circle cx="120" cy="46" r="7.5" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="116" cy="66" rx="10" ry="14" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(88, 58, 5, 8, SAGE, 0.3);
+      svg += limb(106, 56, 88, 66, 2.8, SKIN);
+      var moving = '';
+      moving += dumbbell(76, 78, 14, SAGE);
+      moving += limb(88, 66, 78, 78, 2.8, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,0;6,-20;0,0" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    exercises.curl_martillo = function() {
+      var svg = '';
+      svg += '<rect x="0" y="106" width="200" height="14" fill="' + FLOOR + '"/>';
+      svg += '<circle cx="100" cy="28" r="8" fill="' + SKIN + '"/>';
+      svg += '<ellipse cx="100" cy="54" rx="14" ry="18" fill="' + SKIN_LIGHT + '"/>';
+      svg += muscle(78, 64, 5, 10, SAGE, 0.3);
+      svg += muscle(122, 64, 5, 10, SAGE, 0.3);
+      svg += limb(93, 72, 90, 96, 2.8, SKIN);
+      svg += limb(90, 96, 90, 106, 2.8, SKIN);
+      svg += limb(107, 72, 110, 96, 2.8, SKIN);
+      svg += limb(110, 96, 110, 106, 2.8, SKIN);
+      svg += limb(86, 42, 80, 60, 2.5, SKIN);
+      svg += limb(114, 42, 120, 60, 2.5, SKIN);
+      var moving = '';
+      moving += '<rect x="74" y="70" width="3" height="16" rx="1.5" fill="' + SAGE + '"/>';
+      moving += '<circle cx="75.5" cy="70" r="4" fill="' + SAGE + '" opacity="0.5"/>';
+      moving += '<circle cx="75.5" cy="86" r="4" fill="' + SAGE + '" opacity="0.5"/>';
+      moving += '<rect x="123" y="70" width="3" height="16" rx="1.5" fill="' + SAGE + '"/>';
+      moving += '<circle cx="124.5" cy="70" r="4" fill="' + SAGE + '" opacity="0.5"/>';
+      moving += '<circle cx="124.5" cy="86" r="4" fill="' + SAGE + '" opacity="0.5"/>';
+      moving += limb(80, 60, 75, 78, 2.5, SKIN);
+      moving += limb(120, 60, 125, 78, 2.5, SKIN);
+      svg += '<g>' + moving + '<animateTransform attributeName="transform" type="translate" values="0,0;2,-26;0,0" dur="3s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" repeatCount="indefinite"/></g>';
+      return svg;
+    };
+
+    window.VYTAL_SVG = {
+      render: function(key) {
+        if (exercises[key]) {
+          return '<svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">' + exercises[key]() + '</svg>';
+        }
+        return '<svg viewBox="0 0 200 120"><text x="100" y="60" text-anchor="middle" fill="#999" font-size="12">No disponible</text></svg>';
+      },
+      keys: Object.keys(exercises)
+    };
+  })();
+  </script>
+
+  <script>
+  /* ============================================
+     VYTAL — Main App Logic v2
+     ADHD Gamification + Inline Data
+     ============================================ */
   (function() {
     'use strict';
 
     /* ============================================
-       DATA
+       INLINE DATA
        ============================================ */
-    var trainingPlan = null;
-    var nutritionPlan = null;
+    var trainingPlan = {"program":"Push/Pull Hipertrofia Tren Superior","level":"Intermedio","schedule":{"1":"push","2":"pull","3":"rest","4":"push","5":"pull","6":"rest","0":"rest"},"blocks":{"push":{"name":"Bloque A \u2014 Empuje","color":"terracotta","exercises":[{"key":"press_banca","name":"Press Banca Barra","type":"compound","muscles":"Pecho, Triceps, Deltoides anterior","rest":90,"sets":4,"repRange":[8,12],"bio":"Retrae escapulas y clava pies al suelo. Baja la barra al pecho bajo controlando 2-3 seg la excentrica. Empuja explosivo.","phases":{"start":"Acostado en banco, agarre medio, brazos extendidos","eccentric":"Baja controlado 2-3 seg hasta tocar pecho bajo","concentric":"Empuja explosivo hasta extension completa"},"errors":["Rebotar la barra en el pecho","Levantar gluteos del banco","Agarre demasiado ancho o angosto"]},{"key":"press_inclinado","name":"Press Inclinado Mancuernas","type":"compound","muscles":"Pecho superior, Deltoides anterior","rest":90,"sets":4,"repRange":[8,12],"bio":"Banco a 30-45 grados. Baja mancuernas hasta que codos queden ligeramente debajo del hombro. Aprieta pecho arriba sin chocar mancuernas.","phases":{"start":"Sentado en banco inclinado, mancuernas a los lados del pecho","eccentric":"Baja controlado abriendo codos a 45 grados","concentric":"Empuja hacia arriba y ligeramente hacia adentro"},"errors":["Inclinacion excesiva (mas de 45 grados)","Chocar mancuernas arriba perdiendo tension","Arquear espalda baja excesivamente"]},{"key":"pec_deck","name":"Pec Deck (Mariposa)","type":"isolation","muscles":"Pecho (fibras mediales)","rest":60,"sets":3,"repRange":[10,15],"bio":"Codos ligeramente flexionados durante todo el movimiento. Aprieta 1 segundo en la contraccion maxima. Controla la vuelta.","phases":{"start":"Sentado, brazos abiertos, codos a la altura del pecho","eccentric":"Abre controlado sintiendo estiramiento en pecho","concentric":"Cierra apretando pecho, pausa 1 seg al centro"},"errors":["Extender brazos completamente (carga codos)","Usar impulso del torso","No hacer pausa en la contraccion"]},{"key":"press_militar","name":"Press Militar de Pie","type":"compound","muscles":"Deltoides anterior y lateral, Triceps","rest":90,"sets":4,"repRange":[8,12],"bio":"De pie, core apretado, barra a la altura de claviculas. Empuja vertical pasando la barra cerca de la cara. Bloquea arriba sin hiperextender lumbar.","phases":{"start":"De pie, agarre a la anchura de hombros, barra en claviculas","eccentric":"Baja controlado hasta claviculas","concentric":"Empuja vertical, cabeza pasa ligeramente al frente al terminar"},"errors":["Arquear excesivamente la espalda baja","Empujar la barra hacia adelante en vez de vertical","No apretar gluteos y core"]},{"key":"elevaciones_laterales","name":"Elevaciones Laterales","type":"isolation","muscles":"Deltoides lateral","rest":60,"sets":3,"repRange":[12,15],"bio":"Codos ligeramente flexionados, eleva hasta la altura de los hombros. Controla la bajada. Inclina ligeramente el menique hacia arriba como si sirvieras agua.","phases":{"start":"De pie, mancuernas a los lados, codos ligeramente flexionados","eccentric":"Baja controlado resistiendo la gravedad 2 seg","concentric":"Eleva hasta la altura de hombros, menique arriba"},"errors":["Usar impulso con el torso (swing)","Subir por encima de los hombros","Brazos completamente rectos (carga codos)"]},{"key":"extension_triceps","name":"Extension Triceps Polea","type":"isolation","muscles":"Triceps (cabeza larga y lateral)","rest":60,"sets":3,"repRange":[10,15],"bio":"Codos pegados al cuerpo durante todo el movimiento. Solo se mueve el antebrazo. Aprieta 1 seg abajo en la extension completa.","phases":{"start":"De pie frente a polea alta, codos pegados al torso","eccentric":"Sube controlado hasta 90 grados","concentric":"Extiende completamente, aprieta triceps 1 seg"},"errors":["Separar codos del cuerpo","Inclinarse hacia adelante para hacer fuerza","No completar la extension"]}]},"pull":{"name":"Bloque B \u2014 Traccion","color":"sage","exercises":[{"key":"jalon_pecho","name":"Jalon al Pecho Polea Ancha","type":"compound","muscles":"Dorsal ancho, Romboides, Biceps","rest":90,"sets":4,"repRange":[8,12],"bio":"Agarre prono ancho. Jala la barra al pecho superior sacando pecho. Aprieta escapulas abajo y atras. Controla la subida.","phases":{"start":"Sentado, agarre ancho prono, brazos extendidos arriba","eccentric":"Sube controlado estirando dorsales completamente","concentric":"Jala al pecho sacando pecho, escapulas abajo y atras"},"errors":["Jalar detras de la nuca (lesion de hombro)","Inclinarse excesivamente hacia atras","Jalar solo con biceps sin activar espalda"]},{"key":"remo_barra","name":"Remo Barra Inclinado","type":"compound","muscles":"Dorsal ancho, Romboides, Trapecio","rest":90,"sets":4,"repRange":[8,12],"bio":"Torso a 45 grados, espalda recta, core firme. Jala la barra al ombligo. Los codos pasan detras del torso. Aprieta escapulas arriba.","phases":{"start":"Inclinado 45 grados, agarre prono a la anchura de hombros","eccentric":"Baja controlado estirando dorsales","concentric":"Jala al ombligo, codos atras, aprieta escapulas"},"errors":["Redondear la espalda baja","Usar impulso subiendo el torso","No llevar codos suficientemente atras"]},{"key":"remo_mancuerna","name":"Remo Mancuerna Una Mano","type":"compound","muscles":"Dorsal ancho (unilateral), Romboides","rest":60,"sets":3,"repRange":[10,12],"bio":"Rodilla y mano en banco. Espalda paralela al suelo. Jala el codo hacia arriba y atras, no hacia afuera. Rota ligeramente el torso arriba.","phases":{"start":"Apoyo con rodilla y mano en banco, espalda paralela al suelo","eccentric":"Baja controlado estirando completamente el dorsal","concentric":"Jala codo hacia arriba y atras, ligera rotacion de torso"},"errors":["Jalar el codo hacia afuera (trabaja trapecio, no dorsal)","Rotar excesivamente el torso","No estirar completamente abajo"]},{"key":"face_pulls","name":"Face Pulls","type":"isolation","muscles":"Deltoides posterior, Rotadores externos","rest":60,"sets":3,"repRange":[12,15],"bio":"Polea a la altura de la cara. Jala hacia la frente separando las manos. Rota externamente los hombros arriba. Aprieta escapulas.","phases":{"start":"De pie frente a polea alta con cuerda, brazos extendidos","eccentric":"Regresa controlado estirando deltoides posterior","concentric":"Jala hacia la cara, separa manos, rotacion externa"},"errors":["Jalar muy bajo (se convierte en remo)","No hacer rotacion externa al final","Usar demasiado peso perdiendo forma"]},{"key":"curl_predicador","name":"Curl Predicador","type":"isolation","muscles":"Biceps (cabeza corta), Braquial","rest":60,"sets":3,"repRange":[10,12],"bio":"Axilas apoyadas en el borde del banco predicador. Baja hasta extension casi completa (no bloquees codo). Sube contrayendo biceps sin impulso.","phases":{"start":"Axilas en el borde del predicador, brazos extendidos (no bloqueados)","eccentric":"Baja controlado 2-3 seg hasta casi extension completa","concentric":"Curlea contrayendo biceps, sin despegar codos del pad"},"errors":["Extender completamente el codo (riesgo de lesion)","Despegar los codos del pad para hacer fuerza","Usar impulso con los hombros"]},{"key":"curl_martillo","name":"Curl Martillo","type":"isolation","muscles":"Braquiorradial, Biceps (cabeza larga)","rest":60,"sets":3,"repRange":[10,12],"bio":"Agarre neutro (palmas enfrentadas). Codos pegados al cuerpo. Sube alternando o simultaneo. No balancees el torso.","phases":{"start":"De pie, mancuernas a los lados con agarre neutro","eccentric":"Baja controlado sin soltar la tension","concentric":"Curlea manteniendo munecas neutras, codos fijos"},"errors":["Balancear el torso para subir el peso","Rotar las munecas durante el movimiento","Separar los codos del cuerpo"]}]}}};
+
+    var nutritionPlan = {"profile":{"age":33,"height":174,"weight":83,"goal":"Hipertrofia tren superior","level":"Intermedio"},"targets":{"calories":{"min":2400,"max":2600},"protein":{"min":160,"max":170,"unit":"g"},"carbs":{"min":250,"max":280,"unit":"g"},"fat":{"min":70,"max":80,"unit":"g"},"water":{"liters":3,"glasses":12}},"days":{"lunes":{"type":"training","totalKcal":2520,"totalP":168,"totalC":262,"totalG":74,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":580,"protein":36,"carbs":48,"fat":26,"items":[{"name":"Huevos revueltos con jitomate","amount":"4 piezas + 1/2 jitomate"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Frijoles refritos","amount":"120g (1/2 taza)"},{"name":"Salsa verde","amount":"al gusto"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":780,"protein":54,"carbs":82,"fat":20,"items":[{"name":"Pechuga de pollo a la plancha","amount":"200g"},{"name":"Arroz blanco","amount":"180g cocido (1 taza)"},{"name":"Ensalada (lechuga, pepino, tomate)","amount":"1 tazon"},{"name":"Aguacate","amount":"1/2 pieza"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":15,"kcal":520,"protein":42,"carbs":52,"fat":16,"items":[{"name":"Atun en agua (escurrido)","amount":"2 latas (120g)"},{"name":"Tostadas horneadas","amount":"4 piezas"},{"name":"Aguacate","amount":"1/4 pieza"},{"name":"Limon y salsa","amount":"al gusto"},{"name":"Yogur griego natural","amount":"150g"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":640,"protein":36,"carbs":80,"fat":12,"items":[{"name":"Whey protein (1 scoop) con leche","amount":"300ml leche + 1 scoop"},{"name":"Platano","amount":"1 pieza grande"},{"name":"Avena instantanea","amount":"60g"},{"name":"Creatina","amount":"5g"}]}]},"martes":{"type":"training","totalKcal":2480,"totalP":165,"totalC":258,"totalG":72,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":560,"protein":38,"carbs":42,"fat":24,"items":[{"name":"Omelette de claras con jamon y queso","amount":"3 claras + 1 entero + 40g jamon + 30g queso"},{"name":"Tortillas de harina integral","amount":"2 piezas"},{"name":"Salsa roja","amount":"al gusto"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":760,"protein":50,"carbs":86,"fat":18,"items":[{"name":"Carne molida de res magra","amount":"180g"},{"name":"Pasta integral","amount":"120g (seca)"},{"name":"Salsa de tomate natural","amount":"100g"},{"name":"Queso rallado","amount":"20g"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":480,"protein":40,"carbs":50,"fat":14,"items":[{"name":"Queso cottage","amount":"200g"},{"name":"Galletas integrales","amount":"6 piezas"},{"name":"Platano rebanado","amount":"1 pieza"},{"name":"Miel","amount":"1 cucharada"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":680,"protein":37,"carbs":80,"fat":16,"items":[{"name":"Whey protein con agua","amount":"1 scoop + 300ml"},{"name":"Sandwich de jamon de pavo","amount":"2 rebanadas pan integral + 60g jamon + lechuga"},{"name":"Platano","amount":"1 pieza"},{"name":"Creatina","amount":"5g"}]}]},"miercoles":{"type":"rest","totalKcal":2400,"totalP":162,"totalC":248,"totalG":72,"meals":[{"name":"Desayuno","time":"8:00","prepTime":10,"kcal":540,"protein":34,"carbs":50,"fat":22,"items":[{"name":"Hotcakes de avena","amount":"60g avena + 1 huevo + 1 platano"},{"name":"Yogur griego","amount":"100g"},{"name":"Miel","amount":"1 cucharada"}]},{"name":"Comida","time":"14:00","prepTime":20,"kcal":740,"protein":52,"carbs":72,"fat":22,"items":[{"name":"Pollo deshebrado","amount":"200g"},{"name":"Arroz rojo","amount":"180g cocido"},{"name":"Frijoles de olla","amount":"120g"},{"name":"Tortillas de maiz","amount":"2 piezas"},{"name":"Aguacate","amount":"1/4 pieza"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":620,"protein":44,"carbs":56,"fat":22,"items":[{"name":"Huevos estrellados","amount":"3 piezas"},{"name":"Frijoles refritos","amount":"100g"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Salsa y queso fresco","amount":"30g queso"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":500,"protein":32,"carbs":70,"fat":6,"items":[{"name":"Yogur griego con granola","amount":"200g yogur + 50g granola"},{"name":"Fresas","amount":"100g"},{"name":"Creatina","amount":"5g (mezclar con yogur)"}]}]},"jueves":{"type":"training","totalKcal":2540,"totalP":170,"totalC":264,"totalG":76,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":600,"protein":40,"carbs":52,"fat":24,"items":[{"name":"Chilaquiles verdes con huevo","amount":"Totopos + 3 huevos + salsa verde"},{"name":"Crema y queso fresco","amount":"1 cda crema + 30g queso"},{"name":"Frijoles","amount":"100g"}]},{"name":"Comida","time":"13:30","prepTime":15,"kcal":720,"protein":52,"carbs":78,"fat":18,"items":[{"name":"Bistec de res a la plancha","amount":"180g"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Nopales asados","amount":"100g"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Limon y sal","amount":"al gusto"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":560,"protein":42,"carbs":54,"fat":18,"items":[{"name":"Sincronizadas de jamon y queso","amount":"2 tortillas harina + 60g jamon + 40g queso"},{"name":"Yogur griego","amount":"150g"},{"name":"Fruta (manzana)","amount":"1 pieza"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":660,"protein":36,"carbs":80,"fat":16,"items":[{"name":"Whey protein con leche","amount":"1 scoop + 300ml leche"},{"name":"Pan integral con crema de cacahuate","amount":"2 rebanadas + 1 cda"},{"name":"Platano","amount":"1 pieza"},{"name":"Creatina","amount":"5g"}]}]},"viernes":{"type":"training","totalKcal":2500,"totalP":166,"totalC":260,"totalG":74,"meals":[{"name":"Desayuno","time":"7:30","prepTime":10,"kcal":560,"protein":36,"carbs":46,"fat":24,"items":[{"name":"Molletes de frijol con queso","amount":"2 mitades bolillo + frijoles + queso gratinado"},{"name":"Salsa y aguacate","amount":"al gusto + 1/4 pieza"},{"name":"Yogur griego","amount":"100g"}]},{"name":"Comida","time":"13:30","prepTime":20,"kcal":780,"protein":54,"carbs":84,"fat":20,"items":[{"name":"Pechuga de pollo en salsa roja","amount":"200g pollo + salsa"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Ensalada verde","amount":"1 tazon"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":500,"protein":40,"carbs":50,"fat":14,"items":[{"name":"Quesadillas de pollo","amount":"2 tortillas + 100g pollo deshebrado + 40g queso"},{"name":"Salsa y crema","amount":"al gusto"},{"name":"Pepino con limon","amount":"1 pieza"}]},{"name":"Post-entreno","time":"Despues de entrenar","prepTime":5,"kcal":660,"protein":36,"carbs":80,"fat":16,"items":[{"name":"Whey protein con leche","amount":"1 scoop + 300ml"},{"name":"Avena con platano","amount":"60g avena + 1 platano"},{"name":"Creatina","amount":"5g"}]}]},"sabado":{"type":"rest","totalKcal":2380,"totalP":160,"totalC":246,"totalG":70,"meals":[{"name":"Desayuno","time":"9:00","prepTime":15,"kcal":580,"protein":36,"carbs":52,"fat":22,"items":[{"name":"Huevos a la mexicana","amount":"3 huevos + jitomate + cebolla + chile"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Frijoles","amount":"120g"},{"name":"Jugo de naranja natural","amount":"250ml"}]},{"name":"Comida","time":"14:00","prepTime":20,"kcal":760,"protein":50,"carbs":78,"fat":22,"items":[{"name":"Carne molida con papa","amount":"170g carne + 150g papa"},{"name":"Arroz rojo","amount":"150g cocido"},{"name":"Tortillas de maiz","amount":"3 piezas"},{"name":"Salsa roja","amount":"al gusto"}]},{"name":"Cena","time":"20:00","prepTime":5,"kcal":520,"protein":42,"carbs":48,"fat":16,"items":[{"name":"Sandwich de atun","amount":"2 rebanadas pan integral + 1 lata atun + mayonesa light"},{"name":"Lechuga y jitomate","amount":"al gusto"},{"name":"Yogur griego","amount":"150g"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":520,"protein":32,"carbs":68,"fat":10,"items":[{"name":"Licuado de platano con avena","amount":"1 platano + 40g avena + 300ml leche"},{"name":"Crema de cacahuate","amount":"1 cucharada"},{"name":"Creatina","amount":"5g"}]}]},"domingo":{"type":"rest","totalKcal":2400,"totalP":160,"totalC":252,"totalG":72,"meals":[{"name":"Desayuno","time":"9:00","prepTime":10,"kcal":600,"protein":38,"carbs":56,"fat":24,"items":[{"name":"Enfrijoladas con queso y crema","amount":"3 tortillas + frijol licuado + 30g queso + crema"},{"name":"Huevo estrellado encima","amount":"2 piezas"}]},{"name":"Comida","time":"14:30","prepTime":20,"kcal":740,"protein":50,"carbs":76,"fat":20,"items":[{"name":"Pollo al horno con verduras","amount":"200g muslo + calabaza + chayote"},{"name":"Arroz blanco","amount":"180g cocido"},{"name":"Tortillas de maiz","amount":"2 piezas"}]},{"name":"Cena","time":"20:00","prepTime":10,"kcal":540,"protein":40,"carbs":52,"fat":18,"items":[{"name":"Tacos de carne molida","amount":"3 tortillas + 150g carne"},{"name":"Queso, salsa y aguacate","amount":"20g queso + 1/4 aguacate"},{"name":"Limon","amount":"al gusto"}]},{"name":"Snack","time":"17:00","prepTime":5,"kcal":520,"protein":32,"carbs":68,"fat":10,"items":[{"name":"Queso cottage con fruta","amount":"200g cottage + fresas o mango"},{"name":"Granola","amount":"40g"},{"name":"Creatina","amount":"5g (mezclar)"}]}]}},"groceryList":{"proteinas":["Pechuga de pollo (1.2kg)","Carne molida de res magra (500g)","Bistec de res (200g)","Huevos (2 docenas)","Atun en agua (6 latas)","Jamon de pavo (200g)","Jamon (100g)"],"lacteos":["Yogur griego natural (1kg)","Queso cottage (400g)","Queso Oaxaca/manchego (200g)","Queso fresco (150g)","Leche entera o semidescremada (2L)","Crema (chica)"],"carbohidratos":["Tortillas de maiz (2 paquetes)","Tortillas de harina integral (1 paquete)","Pan integral (1 bolsa)","Arroz (500g)","Avena instantanea (500g)","Pasta integral (250g)","Granola (300g)","Bolillo (2 piezas)","Tostadas horneadas (1 paquete)","Galletas integrales (1 paquete)"],"frutas_verduras":["Platanos (6 piezas)","Aguacate (3 piezas)","Jitomate (6 piezas)","Lechuga (1 pieza)","Pepino (3 piezas)","Cebolla (2 piezas)","Chile serrano (al gusto)","Limon (6 piezas)","Manzana (2 piezas)","Fresas (500g)","Naranja para jugo (6 piezas)","Nopal (4 piezas)","Calabaza (2 piezas)","Chayote (2 piezas)"],"despensa":["Frijoles (500g o 2 latas)","Salsa verde (1 frasco)","Salsa roja (1 frasco)","Crema de cacahuate (1 frasco chico)","Aceite de oliva","Miel (1 frasco chico)","Mayonesa light (1 frasco chico)","Totopos (1 bolsa)"],"suplementos":["Creatina ON (ya en stock: 1.2kg)","Whey Protein ON (revisar stock)"]}};
+
+    /* ============================================
+       CONSTANTS
+       ============================================ */
     var now = new Date();
-    var TODAY_KEY = now.getDay(); // 0=Sun
+    var TODAY_KEY = now.getDay();
     var DAY_NAMES_ES = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
-    var DAY_NAMES_SHORT = ['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
     var DAY_NAMES_LONG = ['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
     var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-    /* State persisted in localStorage */
+    /* XP Levels */
+    var XP_LEVELS = [
+      { name: 'Novato', min: 0 },
+      { name: 'Guerrero', min: 500 },
+      { name: 'Titan', min: 1500 },
+      { name: 'Leyenda', min: 3000 }
+    ];
+
+    var XP_SET = 10;
+    var XP_EXERCISE = 50;
+    var XP_DAY = 200;
+
+    /* ============================================
+       STATE
+       ============================================ */
+    function dateKey() { return now.toISOString().split('T')[0]; }
+
     var state = {
       water: VYTAL_DB.localGet('water_' + dateKey(), 0),
       supps: VYTAL_DB.localGet('supps_' + dateKey(), { creatina: false, proteina: false }),
       exerciseSets: VYTAL_DB.localGet('sets_' + dateKey(), {}),
       exerciseWeights: VYTAL_DB.localGet('weights', {}),
       mealsChecked: VYTAL_DB.localGet('meals_' + dateKey(), {}),
-      currentNutriDay: DAY_NAMES_ES[TODAY_KEY]
+      currentNutriDay: DAY_NAMES_ES[TODAY_KEY],
+      xp: VYTAL_DB.localGet('xp_total', 0),
+      streak: VYTAL_DB.localGet('streak', 0),
+      lastTrainingDate: VYTAL_DB.localGet('last_training_date', ''),
+      dayCompleted: VYTAL_DB.localGet('day_completed_' + dateKey(), false),
+      exerciseCompleted: VYTAL_DB.localGet('ex_completed_' + dateKey(), {})
     };
-
-    function dateKey() {
-      return now.toISOString().split('T')[0];
-    }
 
     function saveState() {
       VYTAL_DB.localSet('water_' + dateKey(), state.water);
@@ -203,24 +1845,147 @@
       VYTAL_DB.localSet('sets_' + dateKey(), state.exerciseSets);
       VYTAL_DB.localSet('weights', state.exerciseWeights);
       VYTAL_DB.localSet('meals_' + dateKey(), state.mealsChecked);
+      VYTAL_DB.localSet('xp_total', state.xp);
+      VYTAL_DB.localSet('streak', state.streak);
+      VYTAL_DB.localSet('last_training_date', state.lastTrainingDate);
+      VYTAL_DB.localSet('day_completed_' + dateKey(), state.dayCompleted);
+      VYTAL_DB.localSet('ex_completed_' + dateKey(), state.exerciseCompleted);
     }
 
     /* ============================================
-       LOAD DATA
+       XP SYSTEM
        ============================================ */
-    function loadData() {
-      return Promise.all([
-        fetch('/assets/training-plan.json').then(function(r) { return r.json(); }),
-        fetch('/assets/nutrition-plan.json').then(function(r) { return r.json(); })
-      ]).then(function(results) {
-        trainingPlan = results[0];
-        nutritionPlan = results[1];
-        renderAll();
-      }).catch(function() {
-        // Try from cache or show error
-        renderAll();
-      });
+    function addXP(amount, label) {
+      state.xp += amount;
+      saveState();
+      renderXPBar();
+      showXPPopup('+' + amount + ' XP' + (label ? ' ' + label : ''));
     }
+
+    function getLevel() {
+      for (var i = XP_LEVELS.length - 1; i >= 0; i--) {
+        if (state.xp >= XP_LEVELS[i].min) return i;
+      }
+      return 0;
+    }
+
+    function renderXPBar() {
+      var lvlIdx = getLevel();
+      var lvl = XP_LEVELS[lvlIdx];
+      var nextLvl = XP_LEVELS[lvlIdx + 1] || null;
+
+      document.getElementById('xpLevelLabel').textContent = lvl.name;
+
+      var pct, label;
+      if (nextLvl) {
+        var xpInLevel = state.xp - lvl.min;
+        var levelSize = nextLvl.min - lvl.min;
+        pct = Math.min((xpInLevel / levelSize) * 100, 100);
+        label = state.xp + ' / ' + nextLvl.min + ' XP';
+      } else {
+        pct = 100;
+        label = state.xp + ' XP — MAX';
+      }
+
+      document.getElementById('xpAmountLabel').textContent = label;
+      document.getElementById('xpBarFill').style.width = pct + '%';
+    }
+
+    function showXPPopup(text) {
+      var popup = document.createElement('div');
+      popup.className = 'xp-popup';
+      popup.textContent = text;
+      document.body.appendChild(popup);
+      setTimeout(function() { if (popup.parentNode) popup.parentNode.removeChild(popup); }, 1600);
+    }
+
+    /* ============================================
+       STREAK SYSTEM
+       ============================================ */
+    function updateStreak() {
+      var today = dateKey();
+      if (state.lastTrainingDate === today) return;
+
+      var yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      var yesterdayKey = yesterday.toISOString().split('T')[0];
+
+      if (state.lastTrainingDate === yesterdayKey || state.lastTrainingDate === '') {
+        state.streak++;
+      } else {
+        state.streak = 1;
+      }
+
+      state.lastTrainingDate = today;
+      saveState();
+    }
+
+    function renderStreak() {
+      var el = document.getElementById('streakDisplay');
+      var fireEl = document.getElementById('streakFire');
+      var textEl = document.getElementById('streakText');
+
+      if (state.streak <= 0) { el.style.display = 'none'; return; }
+
+      el.style.display = 'flex';
+
+      var fire, cls;
+      if (state.streak >= 8) { fire = '\uD83D\uDD25\uD83D\uDD25\uD83D\uDD25'; cls = 'streak-fire big'; }
+      else if (state.streak >= 4) { fire = '\uD83D\uDD25\uD83D\uDD25'; cls = 'streak-fire medium'; }
+      else { fire = '\uD83D\uDD25'; cls = 'streak-fire'; }
+
+      fireEl.className = cls;
+      fireEl.textContent = fire;
+      textEl.textContent = state.streak + ' dias seguidos';
+    }
+
+    /* ============================================
+       CONFETTI
+       ============================================ */
+    function showConfetti(xpEarned) {
+      var overlay = document.createElement('div');
+      overlay.className = 'confetti-overlay';
+
+      var colors = ['#C4613A', '#5B8C6F', '#C4A86B', '#D4A843', '#E8C860', '#FF6B6B'];
+      for (var i = 0; i < 60; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = '-10px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = (Math.random() * 1.5) + 's';
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 8) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        overlay.appendChild(piece);
+      }
+
+      var msg = document.createElement('div');
+      msg.className = 'day-complete-msg';
+      msg.innerHTML = '<h2 style="color:var(--success)">DIA COMPLETADO</h2><div class="xp-earned">+' + xpEarned + ' XP</div><div style="font-size:0.8rem;color:var(--text-secondary);margin-top:8px">Increible esfuerzo</div>';
+      overlay.appendChild(msg);
+
+      document.body.appendChild(overlay);
+
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+
+      setTimeout(function() {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 4000);
+    }
+
+    /* ============================================
+       SCHEDULE
+       ============================================ */
+    var schedule = { 0:'rest', 1:'push', 2:'pull', 3:'rest', 4:'push', 5:'pull', 6:'rest' };
+    var scheduleLabels = {
+      push: { label: 'Bloque A \u2014 Empuje', sub: '6 ejercicios \u00B7 ~55 min' },
+      pull: { label: 'Bloque B \u2014 Traccion', sub: '6 ejercicios \u00B7 ~55 min' },
+      rest: { label: 'Descanso', sub: 'Recuperacion activa \u00B7 Descansa bien' }
+    };
+
+    function getTodayType() { return schedule[TODAY_KEY]; }
 
     /* ============================================
        DATE HEADER
@@ -231,25 +1996,12 @@
     }
 
     /* ============================================
-       SCHEDULE
-       ============================================ */
-    var schedule = { 0:'rest', 1:'push', 2:'pull', 3:'rest', 4:'push', 5:'pull', 6:'rest' };
-    var scheduleLabels = {
-      push: { label: 'Bloque A — Empuje', sub: '6 ejercicios · ~55 min' },
-      pull: { label: 'Bloque B — Traccion', sub: '6 ejercicios · ~55 min' },
-      rest: { label: 'Descanso', sub: 'Recuperacion activa · Descansa bien' }
-    };
-
-    function getTodayType() { return schedule[TODAY_KEY]; }
-
-    /* ============================================
        DASHBOARD
        ============================================ */
     function renderDashboard() {
       var type = getTodayType();
       var info = scheduleLabels[type];
 
-      // Hero
       var hero = document.getElementById('heroCard');
       hero.className = 'hero-card ' + type;
       document.getElementById('heroTitle').textContent = info.label;
@@ -257,28 +2009,27 @@
       document.getElementById('heroLabel').textContent = type === 'rest' ? 'Hoy es' : 'Hoy toca';
       hero.onclick = function() { if (type !== 'rest') navigateTo('entreno'); };
 
-      // Week
       renderWeek();
 
-      // Stats
       document.getElementById('statWater').textContent = (state.water * 0.25).toFixed(1) + 'L';
       var suppsDone = (state.supps.creatina ? 1 : 0) + (state.supps.proteina ? 1 : 0);
       document.getElementById('statSupps').textContent = suppsDone + '/2';
 
-      // Sessions this week
       var sessions = 0;
       var mondayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
       for (var d = 0; d < mondayIdx; d++) {
-        var dayNum = d + 1; // 1=Mon
+        var dayNum = d + 1;
         if (schedule[dayNum] !== 'rest') {
           var key = getDateForWeekday(dayNum);
           var sets = VYTAL_DB.localGet('sets_' + key, {});
           if (Object.keys(sets).length > 0) sessions++;
         }
       }
-      // Check today
       if (Object.keys(state.exerciseSets).length > 0) sessions++;
       document.getElementById('statSessions').textContent = sessions;
+
+      renderXPBar();
+      renderStreak();
     }
 
     function getDateForWeekday(dayNum) {
@@ -291,7 +2042,7 @@
     function renderWeek() {
       var el = document.getElementById('weekDays');
       if (!el) return;
-      var dayOrder = [1,2,3,4,5,6,0]; // Mon-Sun
+      var dayOrder = [1,2,3,4,5,6,0];
       var names = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
       var todayIdx = TODAY_KEY === 0 ? 6 : TODAY_KEY - 1;
       var html = '';
@@ -309,19 +2060,16 @@
        ENTRENO
        ============================================ */
     function renderEntreno() {
-      if (!trainingPlan) return;
       var type = getTodayType();
       var titleEl = document.getElementById('entrenoTitle');
       var listEl = document.getElementById('exerciseList');
-      var progressBar = document.getElementById('dayProgressBar');
-      var progressLabel = document.getElementById('dayProgressLabel');
 
       if (type === 'rest') {
         titleEl.textContent = 'Dia de descanso';
         titleEl.className = '';
         listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text-muted)">' +
-          '<div style="font-size:2rem;margin-bottom:12px">&#9968;</div>' +
-          '<p style="font-size:.85rem">Hoy es dia de recuperacion.</p>' +
+          '<div style="font-size:2.5rem;margin-bottom:12px">&#9968;</div>' +
+          '<p style="font-size:.88rem;font-weight:600">Hoy es dia de recuperacion.</p>' +
           '<p style="font-size:.75rem;margin-top:8px">Descansa, estira, hidratate.</p></div>';
         document.getElementById('entrenoProgress').style.display = 'none';
         return;
@@ -331,30 +2079,43 @@
       var block = trainingPlan.blocks[type];
       titleEl.textContent = block.name;
       titleEl.className = type === 'push' ? 'push' : 'pull';
+
+      var progressBar = document.getElementById('dayProgressBar');
       progressBar.className = 'progress-fill ' + (type === 'push' ? 'terracotta' : 'sage');
 
       var exercises = block.exercises;
       var html = '';
+      var firstUncompleted = -1;
 
       for (var i = 0; i < exercises.length; i++) {
         var ex = exercises[i];
-        var colorClass = type;
         var setsState = state.exerciseSets[ex.key] || [];
         var lastWeight = state.exerciseWeights[ex.key] || '';
+        var isExCompleted = state.exerciseCompleted[ex.key] || false;
 
-        html += '<div class="exercise-card ' + colorClass + '">';
+        if (!isExCompleted && firstUncompleted === -1) firstUncompleted = i;
+
+        var cardClass = 'exercise-card ' + type + (isExCompleted ? ' ex-completed' : '');
+
+        html += '<div class="' + cardClass + '" id="exCard_' + ex.key + '">';
+
         // Header
         html += '<div class="exercise-header">';
         html += '<div class="exercise-number">' + (i + 1) + '</div>';
-        html += '<div><div class="exercise-name">' + ex.name + '</div>';
-        html += '<div class="exercise-meta">' + (ex.type === 'compound' ? 'Compuesto' : 'Aislamiento') + ' · ' + ex.muscles + '</div></div></div>';
+        html += '<div style="flex:1"><div class="exercise-name">' + ex.name + '</div>';
+        html += '<div class="exercise-meta">' + (ex.type === 'compound' ? 'Compuesto' : 'Aislamiento') + ' \u00B7 ' + ex.muscles + '</div></div>';
+        html += '<span class="completed-badge">\u2713 COMPLETADO</span>';
+        html += '</div>';
+
+        // Body (hidden when completed)
+        html += '<div class="exercise-body">';
 
         // SVG
         html += '<div class="svg-container">' + (window.VYTAL_SVG ? VYTAL_SVG.render(ex.key) : '') + '</div>';
 
         // Detail button
         html += '<div style="text-align:center;margin:-6px 0 12px">';
-        html += '<button onclick="openExerciseModal(\'' + ex.key + '\')" style="font-size:.7rem;color:var(--' + (type === 'push' ? 'push-terracotta' : 'pull-sage') + ');font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:6px 16px;border-radius:var(--radius-sm);background:var(--' + (type === 'push' ? 'push-terracotta-soft' : 'pull-sage-soft') + ')">Ver fases y errores</button>';
+        html += '<button onclick="openExerciseModal(\'' + ex.key + '\')" style="font-size:.7rem;color:var(--' + (type === 'push' ? 'push-terracotta' : 'pull-sage') + ');font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 16px;border-radius:var(--radius-sm);background:var(--' + (type === 'push' ? 'push-terracotta-soft' : 'pull-sage-soft') + ');border:none;cursor:pointer">Ver fases y errores</button>';
         html += '</div>';
 
         // Bio tip
@@ -364,24 +2125,29 @@
         html += '<div class="weight-row" style="margin-bottom:14px">';
         html += '<input type="number" class="weight-input" value="' + lastWeight + '" step="2.5" inputmode="decimal" placeholder="kg" data-exercise="' + ex.key + '" onchange="updateWeight(this)">';
         html += '<span class="weight-unit">kg</span>';
-
-        // Progression suggestion
         var suggestion = getProgression(ex.key, ex.repRange);
-        if (suggestion) {
-          html += '<span class="weight-suggestion">' + suggestion + '</span>';
-        }
+        if (suggestion) html += '<span class="weight-suggestion">' + suggestion + '</span>';
         html += '</div>';
 
-        // Series
+        // Series - with inline rep buttons
         html += '<div class="series-tracker">';
         for (var s = 0; s < ex.sets; s++) {
           var completed = setsState[s] ? true : false;
-          var repsVal = setsState[s] || '—';
-          html += '<button class="series-btn ' + colorClass + (completed ? ' completed' : '') + '" ' +
-            'onclick="toggleSet(this,\'' + ex.key + '\',' + s + ',' + ex.repRange[0] + ',' + ex.repRange[1] + ')" ' +
+          var repsVal = setsState[s] || '\u2014';
+          html += '<button class="series-btn ' + type + (completed ? ' completed' : '') + '" ' +
+            'onclick="toggleSet(event,\'' + ex.key + '\',' + s + ',' + ex.repRange[0] + ',' + ex.repRange[1] + ',' + i + ')" ' +
             'data-set="' + s + '">';
           html += '<div class="series-label">S' + (s + 1) + '</div>';
           html += '<div class="series-reps">' + repsVal + '</div>';
+          if (!completed) {
+            // Show preset rep buttons
+            html += '<div class="rep-selector">';
+            var presets = getRepPresets(ex.repRange);
+            for (var p = 0; p < presets.length; p++) {
+              html += '<span class="rep-preset" onclick="event.stopPropagation(); quickSet(\'' + ex.key + '\',' + s + ',' + presets[p] + ',' + i + ')">' + presets[p] + '</span>';
+            }
+            html += '</div>';
+          }
           html += '</button>';
         }
         html += '</div>';
@@ -390,17 +2156,41 @@
         var restTime = ex.rest;
         var min = Math.floor(restTime / 60);
         var sec = restTime % 60;
-        html += '<div class="rest-timer">';
+        html += '<div class="rest-timer" id="timer_' + ex.key + '">';
         html += '<button class="timer-btn reset" onclick="resetTimer(this,' + restTime + ')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg></button>';
         html += '<div class="timer-display">' + min + ':' + (sec < 10 ? '0' : '') + sec + '</div>';
         html += '<button class="timer-btn start" onclick="startTimer(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>';
         html += '</div>';
 
+        html += '</div>'; // exercise-body
         html += '</div>'; // exercise-card
       }
 
       listEl.innerHTML = html;
       updateDayProgress(exercises);
+
+      // Auto-scroll to first uncompleted
+      if (firstUncompleted > 0) {
+        var targetCard = document.getElementById('exCard_' + exercises[firstUncompleted].key);
+        if (targetCard) {
+          setTimeout(function() { targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+        }
+      }
+    }
+
+    function getRepPresets(repRange) {
+      var presets = [];
+      var lo = repRange[0];
+      var hi = repRange[1];
+      if (hi - lo >= 4) {
+        presets.push(lo);
+        presets.push(Math.round((lo + hi) / 2));
+        presets.push(hi);
+      } else {
+        for (var r = lo; r <= hi; r++) presets.push(r);
+        if (presets.length > 4) presets = [lo, Math.round((lo + hi) / 2), hi];
+      }
+      return presets;
     }
 
     function updateDayProgress(exercises) {
@@ -408,6 +2198,7 @@
       var total = exercises.length;
       var done = 0;
       for (var i = 0; i < exercises.length; i++) {
+        if (state.exerciseCompleted[exercises[i].key]) { done++; continue; }
         var sets = state.exerciseSets[exercises[i].key] || [];
         var allDone = true;
         for (var s = 0; s < exercises[i].sets; s++) {
@@ -415,29 +2206,89 @@
         }
         if (allDone && sets.length >= exercises[i].sets) done++;
       }
+      var pct = total > 0 ? Math.round(done / total * 100) : 0;
       document.getElementById('dayProgressLabel').textContent = done + '/' + total + ' ejercicios';
-      document.getElementById('dayProgressBar').style.width = (done / total * 100) + '%';
+      document.getElementById('dayProgressPct').textContent = pct + '%';
+      document.getElementById('dayProgressBar').style.width = pct + '%';
     }
 
     function getProgression(key, repRange) {
-      // Check if all sets hit max reps last session
       var lastSets = state.exerciseSets[key] || [];
       if (lastSets.length === 0) return '';
       var allMaxed = true;
       for (var i = 0; i < lastSets.length; i++) {
         if (!lastSets[i] || lastSets[i] < repRange[1]) { allMaxed = false; break; }
       }
-      if (allMaxed && lastSets.length >= 3) return 'Sube +2.5kg';
+      if (allMaxed && lastSets.length >= 3) return '\u2191 Sube +2.5kg';
       return '';
+    }
+
+    function checkExerciseComplete(exKey, exerciseIdx) {
+      var type = getTodayType();
+      if (type === 'rest') return;
+      var block = trainingPlan.blocks[type];
+      var ex = block.exercises[exerciseIdx];
+      if (!ex) return;
+
+      var sets = state.exerciseSets[exKey] || [];
+      var allDone = true;
+      for (var s = 0; s < ex.sets; s++) {
+        if (!sets[s]) { allDone = false; break; }
+      }
+
+      if (allDone && !state.exerciseCompleted[exKey]) {
+        state.exerciseCompleted[exKey] = true;
+        addXP(XP_EXERCISE, '\u2014 Ejercicio completo');
+        if (navigator.vibrate) navigator.vibrate(100);
+
+        // Collapse card
+        var card = document.getElementById('exCard_' + exKey);
+        if (card) {
+          card.classList.add('ex-completed');
+        }
+
+        // Check day completion
+        checkDayComplete(block.exercises);
+
+        // Auto-scroll to next
+        var nextIdx = exerciseIdx + 1;
+        if (nextIdx < block.exercises.length) {
+          var nextCard = document.getElementById('exCard_' + block.exercises[nextIdx].key);
+          if (nextCard) {
+            setTimeout(function() { nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 400);
+          }
+        }
+
+        saveState();
+      } else if (!allDone && state.exerciseCompleted[exKey]) {
+        state.exerciseCompleted[exKey] = false;
+        saveState();
+        var card2 = document.getElementById('exCard_' + exKey);
+        if (card2) card2.classList.remove('ex-completed');
+      }
+
+      updateDayProgress(block.exercises);
+    }
+
+    function checkDayComplete(exercises) {
+      if (state.dayCompleted) return;
+      var allDone = true;
+      for (var i = 0; i < exercises.length; i++) {
+        if (!state.exerciseCompleted[exercises[i].key]) { allDone = false; break; }
+      }
+      if (allDone) {
+        state.dayCompleted = true;
+        updateStreak();
+        addXP(XP_DAY, '\u2014 DIA COMPLETADO');
+        saveState();
+        showConfetti(XP_DAY);
+      }
     }
 
     /* ============================================
        NUTRICION
        ============================================ */
     function renderNutricion() {
-      if (!nutritionPlan) return;
-
-      // Day tabs
       var tabsEl = document.getElementById('nutriDayTabs');
       var daysOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
       var daysLabels = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
@@ -450,7 +2301,6 @@
         tabsHtml += '<button class="' + cls + '" onclick="switchNutriDay(\'' + d + '\')">' + daysLabels[i] + '</button>';
       }
       tabsEl.innerHTML = tabsHtml;
-
       renderNutriDay(state.currentNutriDay);
       renderWater('nutriWaterGlasses', 'nutriWaterCount');
       renderGroceryList();
@@ -460,7 +2310,6 @@
       var dayData = nutritionPlan.days[dayKey];
       if (!dayData) return;
 
-      // Macros
       var targets = nutritionPlan.targets;
       var macrosEl = document.getElementById('nutriMacros');
       var macros = [
@@ -469,8 +2318,7 @@
         { label: 'Grasas', value: dayData.totalG, target: targets.fat.max, color: 'var(--accent-sand)' }
       ];
 
-      var circumference = 2 * Math.PI * 26; // r=26
-
+      var circumference = 2 * Math.PI * 26;
       var mHtml = '';
       for (var m = 0; m < macros.length; m++) {
         var pct = Math.min(macros[m].value / macros[m].target, 1);
@@ -483,11 +2331,9 @@
       }
       macrosEl.innerHTML = mHtml;
 
-      // Meals
       var mealEl = document.getElementById('mealList');
       var meals = dayData.meals;
       var mealHtml = '';
-
       for (var j = 0; j < meals.length; j++) {
         var meal = meals[j];
         mealHtml += '<div class="meal-card">';
@@ -505,19 +2351,13 @@
 
     function renderGroceryList() {
       var el = document.getElementById('grocerySection');
-      if (!nutritionPlan || !nutritionPlan.groceryList) { el.innerHTML = ''; return; }
-
+      if (!nutritionPlan.groceryList) { el.innerHTML = ''; return; }
       var gl = nutritionPlan.groceryList;
       var categories = {
-        proteinas: 'Proteinas',
-        lacteos: 'Lacteos',
-        carbohidratos: 'Carbohidratos',
-        frutas_verduras: 'Frutas y Verduras',
-        despensa: 'Despensa',
-        suplementos: 'Suplementos'
+        proteinas: 'Proteinas', lacteos: 'Lacteos', carbohidratos: 'Carbohidratos',
+        frutas_verduras: 'Frutas y Verduras', despensa: 'Despensa', suplementos: 'Suplementos'
       };
-
-      var html = '<h3 style="font-size:.8rem;color:var(--text-primary);margin-bottom:14px;letter-spacing:.08em">Lista del Super Semanal</h3>';
+      var html = '<h3 style="font-size:.82rem;color:var(--text-primary);margin-bottom:14px;letter-spacing:.08em;font-weight:800">Lista del Super Semanal</h3>';
       var keys = Object.keys(categories);
       for (var i = 0; i < keys.length; i++) {
         var items = gl[keys[i]];
@@ -537,21 +2377,19 @@
     function renderSuplementos() {
       var type = getTodayType();
       var isTraining = type !== 'rest';
-
       var html = '';
-      // Creatina
-      html += '<div class="supplement-card" onclick="toggleSuppState(\'creatina\')">';
-      html += '<div class="supp-icon" style="background:var(--push-terracotta-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--push-terracotta)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>';
-      html += '<div class="supp-info"><div class="supp-name">Creatina Monohidrato</div><div class="supp-dose">5g diarios · Optimum Nutrition</div>';
-      html += '<div class="supp-dose" style="color:var(--text-muted);margin-top:1px">Todos los dias, cualquier momento</div></div>';
-      html += '<div class="supp-check ' + (state.supps.creatina ? 'done' : '') + '">&#10003;</div></div>';
 
-      // Proteina
-      html += '<div class="supplement-card' + (!isTraining ? ' style="opacity:0.5"' : '') + '" onclick="' + (isTraining ? 'toggleSuppState(\'proteina\')' : '') + '">';
-      html += '<div class="supp-icon" style="background:var(--pull-sage-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pull-sage)" stroke-width="1.8" stroke-linecap="round"><path d="M8 2h8v4a4 4 0 01-4 4 4 4 0 01-4-4V2z"/><path d="M8 10v8a4 4 0 004 4 4 4 0 004-4v-8"/></svg></div>';
-      html += '<div class="supp-info"><div class="supp-name">Proteina Whey</div><div class="supp-dose">1 scoop post-entreno · Optimum Nutrition</div>';
+      html += '<div class="supplement-card" onclick="toggleSuppState(\'creatina\')">';
+      html += '<div class="supp-icon" style="background:linear-gradient(135deg, var(--push-terracotta-soft), var(--push-terracotta-medium))"><svg viewBox="0 0 24 24" fill="none" stroke="var(--push-terracotta)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>';
+      html += '<div class="supp-info"><div class="supp-name">Creatina Monohidrato</div><div class="supp-dose">5g diarios \u00B7 Optimum Nutrition</div>';
+      html += '<div class="supp-dose" style="color:var(--text-muted);margin-top:1px">Todos los dias, cualquier momento</div></div>';
+      html += '<div class="supp-check ' + (state.supps.creatina ? 'done' : '') + '">\u2713</div></div>';
+
+      html += '<div class="supplement-card' + (!isTraining ? '" style="opacity:0.5' : '') + '" onclick="' + (isTraining ? 'toggleSuppState(\'proteina\')' : '') + '">';
+      html += '<div class="supp-icon" style="background:linear-gradient(135deg, var(--pull-sage-soft), var(--pull-sage-medium))"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pull-sage)" stroke-width="1.8" stroke-linecap="round"><path d="M8 2h8v4a4 4 0 01-4 4 4 4 0 01-4-4V2z"/><path d="M8 10v8a4 4 0 004 4 4 4 0 004-4v-8"/></svg></div>';
+      html += '<div class="supp-info"><div class="supp-name">Proteina Whey</div><div class="supp-dose">1 scoop post-entreno \u00B7 Optimum Nutrition</div>';
       html += '<div class="supp-dose" style="color:var(--text-muted);margin-top:1px">' + (isTraining ? 'Hoy es dia de entrenamiento' : 'Solo dias de entrenamiento (hoy no)') + '</div></div>';
-      html += '<div class="supp-check ' + (state.supps.proteina ? 'done' : '') + '">&#10003;</div></div>';
+      html += '<div class="supp-check ' + (state.supps.proteina ? 'done' : '') + '">\u2713</div></div>';
 
       document.getElementById('suppList').innerHTML = html;
       renderWater('suppWaterGlasses', 'suppWaterCount');
@@ -579,42 +2417,71 @@
        INTERACTIONS
        ============================================ */
 
-    window.toggleSet = function(btn, exKey, setIdx, minReps, maxReps) {
+    // Quick set (tap preset rep number)
+    window.quickSet = function(exKey, setIdx, reps, exerciseIdx) {
+      if (!state.exerciseSets[exKey]) state.exerciseSets[exKey] = [];
+      state.exerciseSets[exKey][setIdx] = reps;
+      addXP(XP_SET, '');
+      if (navigator.vibrate) navigator.vibrate(30);
+      saveState();
+
+      // Log to Supabase
+      var weight = state.exerciseWeights[exKey] || 0;
+      VYTAL_DB.insert('exercise_logs', {
+        ejercicio_key: exKey, peso_kg: parseFloat(weight),
+        serie: setIdx + 1, reps: reps, fecha: dateKey()
+      });
+
+      // Auto-start timer
+      autoStartTimer(exKey);
+
+      checkExerciseComplete(exKey, exerciseIdx);
+      renderEntreno();
+    };
+
+    window.toggleSet = function(event, exKey, setIdx, minReps, maxReps, exerciseIdx) {
+      // If clicking a preset, that handler takes over
+      if (event.target.classList.contains('rep-preset')) return;
+
       if (!state.exerciseSets[exKey]) state.exerciseSets[exKey] = [];
       var sets = state.exerciseSets[exKey];
 
       if (sets[setIdx]) {
         // Uncomplete
         sets[setIdx] = 0;
-        btn.classList.remove('completed');
-        btn.querySelector('.series-reps').textContent = '—';
+        if (state.exerciseCompleted[exKey]) {
+          state.exerciseCompleted[exKey] = false;
+          state.dayCompleted = false;
+        }
+        saveState();
+        renderEntreno();
       } else {
-        // Complete — prompt for reps
-        var reps = prompt('Reps completadas (' + minReps + '-' + maxReps + '):', maxReps);
-        if (reps === null) return;
-        reps = parseInt(reps) || maxReps;
-        sets[setIdx] = reps;
-        btn.classList.add('completed');
-        btn.querySelector('.series-reps').textContent = reps;
+        // One-tap complete with max reps (reduce friction)
+        sets[setIdx] = maxReps;
+        addXP(XP_SET, '');
+        if (navigator.vibrate) navigator.vibrate(30);
+        saveState();
 
-        // Log to Supabase
         var weight = state.exerciseWeights[exKey] || 0;
         VYTAL_DB.insert('exercise_logs', {
-          ejercicio_key: exKey,
-          peso_kg: parseFloat(weight),
-          serie: setIdx + 1,
-          reps: reps,
-          fecha: dateKey()
+          ejercicio_key: exKey, peso_kg: parseFloat(weight),
+          serie: setIdx + 1, reps: maxReps, fecha: dateKey()
         });
-      }
-      saveState();
 
-      // Update progress
-      var type = getTodayType();
-      if (trainingPlan && trainingPlan.blocks[type]) {
-        updateDayProgress(trainingPlan.blocks[type].exercises);
+        autoStartTimer(exKey);
+        checkExerciseComplete(exKey, exerciseIdx);
+        renderEntreno();
       }
     };
+
+    function autoStartTimer(exKey) {
+      var timerContainer = document.getElementById('timer_' + exKey);
+      if (!timerContainer) return;
+      var startBtn = timerContainer.querySelector('.timer-btn.start');
+      if (startBtn) {
+        setTimeout(function() { startTimer(startBtn); }, 100);
+      }
+    }
 
     window.updateWeight = function(input) {
       var key = input.getAttribute('data-exercise');
@@ -627,21 +2494,15 @@
       saveState();
       renderSuplementos();
       renderDashboard();
-
       VYTAL_DB.insert('supplement_logs', {
-        fecha: dateKey(),
-        creatina: state.supps.creatina,
-        proteina: state.supps.proteina,
-        agua_vasos: state.water
+        fecha: dateKey(), creatina: state.supps.creatina,
+        proteina: state.supps.proteina, agua_vasos: state.water
       });
     };
 
     window.toggleWaterGlass = function(idx) {
-      if (idx < state.water) {
-        state.water = idx;
-      } else {
-        state.water = idx + 1;
-      }
+      if (idx < state.water) state.water = idx;
+      else state.water = idx + 1;
       saveState();
       renderWater('nutriWaterGlasses', 'nutriWaterCount');
       renderWater('suppWaterGlasses', 'suppWaterCount');
@@ -657,7 +2518,7 @@
     var activeTimers = {};
 
     window.startTimer = function(btn) {
-      var container = btn.parentElement;
+      var container = btn.closest('.rest-timer');
       var display = container.querySelector('.timer-display');
       var id = container.getAttribute('data-timer-id') || ('t' + Date.now());
       container.setAttribute('data-timer-id', id);
@@ -668,13 +2529,16 @@
       var seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
       if (seconds <= 0) return;
 
+      container.classList.add('running');
+      container.classList.remove('done');
+
       activeTimers[id] = setInterval(function() {
         seconds--;
         if (seconds <= 0) {
           clearInterval(activeTimers[id]);
           display.textContent = '0:00';
-          display.style.color = 'var(--push-terracotta)';
-          // Vibrate if supported
+          container.classList.remove('running');
+          container.classList.add('done');
           if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
           return;
         }
@@ -685,19 +2549,18 @@
     };
 
     window.resetTimer = function(btn, totalSeconds) {
-      var container = btn.parentElement;
+      var container = btn.closest('.rest-timer');
       var display = container.querySelector('.timer-display');
       var id = container.getAttribute('data-timer-id');
       if (id && activeTimers[id]) clearInterval(activeTimers[id]);
+      container.classList.remove('running', 'done');
       var m = Math.floor(totalSeconds / 60);
       var s = totalSeconds % 60;
       display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-      display.style.color = '';
     };
 
     /* Modal */
     window.openExerciseModal = function(key) {
-      if (!trainingPlan) return;
       var ex = null;
       var blocks = ['push', 'pull'];
       for (var b = 0; b < blocks.length; b++) {
@@ -709,26 +2572,18 @@
       }
       if (!ex) return;
 
-      var html = '<button class="modal-close" onclick="closeModal()">&#10005;</button>';
+      var html = '<button class="modal-close" onclick="closeModal()">\u2715</button>';
       html += '<div class="modal-title">' + ex.name + '</div>';
-
-      // Phases
       html += '<div class="phase-item"><div class="phase-label start">Posicion inicial</div><div class="phase-text">' + ex.phases.start + '</div></div>';
       html += '<div class="phase-item"><div class="phase-label ecc">Fase excentrica (bajar)</div><div class="phase-text">' + ex.phases.eccentric + '</div></div>';
       html += '<div class="phase-item"><div class="phase-label con">Fase concentrica (subir)</div><div class="phase-text">' + ex.phases.concentric + '</div></div>';
-
-      // Errors
       html += '<div style="margin-top:16px"><div class="phase-label" style="color:var(--danger);margin-bottom:4px">Errores comunes</div>';
       html += '<ul class="error-list">';
-      for (var e = 0; e < ex.errors.length; e++) {
-        html += '<li>' + ex.errors[e] + '</li>';
-      }
+      for (var e = 0; e < ex.errors.length; e++) html += '<li>' + ex.errors[e] + '</li>';
       html += '</ul></div>';
-
-      // Reps/sets info
       html += '<div style="margin-top:16px;padding:12px;background:var(--bg-warm);border-radius:var(--radius-sm);font-size:.75rem;color:var(--text-secondary)">';
       html += '<strong>' + ex.sets + ' series</strong> de <strong>' + ex.repRange[0] + '-' + ex.repRange[1] + ' reps</strong>';
-      html += ' · Descanso: <strong>' + (ex.rest >= 60 ? (ex.rest / 60) + ' min' : ex.rest + ' seg') + '</strong>';
+      html += ' \u00B7 Descanso: <strong>' + (ex.rest >= 60 ? (ex.rest / 60) + ' min' : ex.rest + ' seg') + '</strong>';
       html += '</div>';
 
       document.getElementById('modalBox').innerHTML = html;
@@ -754,7 +2609,6 @@
         if (navItems[j].getAttribute('data-page') === page) navItems[j].classList.add('active');
       }
       window.scrollTo(0, 0);
-      // Lazy render
       if (page === 'entreno') renderEntreno();
       if (page === 'nutricion') renderNutricion();
       if (page === 'suplementos') renderSuplementos();
@@ -770,16 +2624,9 @@
     }
 
     /* ============================================
-       SERVICE WORKER
-       ============================================ */
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(function() {});
-    }
-
-    /* ============================================
        INIT
        ============================================ */
-    loadData();
+    renderAll();
 
   })();
   </script>
